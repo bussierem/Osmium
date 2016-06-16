@@ -1,12 +1,11 @@
+import ctypes
 import os
+import re
+import shutil
 import subprocess
 import sys
 import time
 from os import path
-
-if os.name == "nt":
-    from win32 import win32api
-    import win32con
 
 """
 TODO:
@@ -18,7 +17,7 @@ TODO:
         --size
             --Should be adjusted to the size (TB, GB, MB, Kb)
     --toggle hidden files
-    copy files rapidly
+    --copy files rapidly
     BASIC OPERATIONS:
         --copy
         --move
@@ -30,10 +29,11 @@ TODO:
             if cut:
                 move file from stored src to dst
             if copy:
-                shutil.copy(src, dst)
-    validate file/folder names
-        linux
-        windows
+                fast_copy(src, dst)
+    --validate file/folder names
+        --linux
+        --windows
+        --mac
 """
 
 """
@@ -75,12 +75,15 @@ os stuff:
 
 
 def is_hidden_file(path):
+    result = False
     if OS_TYPE == "Windows":
-        attribute = win32api.GetFileAttributes(path)
-        return attribute & (
-        win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)
-    else:
-        return path.startswith('.')
+        try:
+            attrs = ctypes.windll.kernel32.GetFileAttributesW(str(path))
+            assert attrs != -1
+            result = bool(attrs & 2)
+        except (AttributeError, AssertionError):
+            result = False
+    return path.startswith('.') or result
 
 
 def display_files(testfile):
@@ -103,10 +106,50 @@ def display_files(testfile):
     mod_time = time.localtime(path.getmtime(testfile))
     last_modified_12 = time.strftime("%m/%d/%y %I:%M:%S %p", mod_time)
     last_modified_24 = time.strftime("%m/%d/%y %H:%M:%S", mod_time)
-    print(
-        "Name:  {}\nType:  {}\nExt:   {}\nSize:  {}\nMod12: {}\nMod24: {}".format(
-            filename, type, ext, size_str, last_modified_12, last_modified_24
-        ))
+    print("Name:  {}\nType:  {}\nExt:   {}\nSize:  {}\nMod12: {}\nMod24: {}".format(
+        filename, type, ext, size_str, last_modified_12, last_modified_24
+    ))
+
+
+def open_file(filepath):
+    if OS_TYPE == "Mac":
+        command = "open"
+    elif OS_TYPE == "Windows":
+        command = "start"
+    else:
+        command = "xdg-open"
+    os.system("{} {}".format(command, testfile))
+
+
+def fast_copy(srcpath, dstpath):
+    if OS_TYPE == "Windows":
+        subprocess.call(["xcopy", srcpath, dstpath], shell=True)
+    else:
+        shutil.copy(srcpath, dstpath)
+
+
+def is_valid_filename(filename):
+    has_invalid_chars = False
+    uses_reserved_name = False
+    filename, _ = path.splitext(testfile)
+    if OS_TYPE == "Windows":
+        # Lots of things banned in Windows...
+        invalid_chars_regex = re.compile(r'((?![<>:|?\/\\*]).)+')
+        # Extra reserved names to check for
+        reserved_names_regex = re.compile(
+            r'^(COM[1-9])|(LPT[1-9])|(PRN|AUX|NUL|CON)$'
+        )
+        if re.match(reserved_names_regex, filename):
+            uses_reserved_name = True
+    elif OS_TYPE == "Mac":
+        # Not many invalid characters in Mac...
+        invalid_chars_regex = re.compile(r'((?![\/\:]).)+')
+    else:
+        # Even less in Linux!
+        invalid_chars_regex = re.compile(r'((?![\/]).)+')
+    if re.match(invalid_chars_regex, filename):
+        has_invalid_chars = True
+    return has_invalid_chars or uses_reserved_name
 
 
 if __name__ == "__main__":
@@ -118,10 +161,4 @@ if __name__ == "__main__":
         OS_TYPE = "Unix"
     testfile = path.join(os.getcwd(), "explorer.txt")
     # display_files(testfile)
-    print(os.name)
-    if OS_TYPE == "Mac":
-        subprocess.call(["open", testfile])
-    elif OS_TYPE == "Windows":
-        subprocess.call(["start", testfile])
-    else:
-        subprocess.call(["xdg-open", testfile])
+    print(is_hidden_file(testfile.split(os.sep)[-1]))

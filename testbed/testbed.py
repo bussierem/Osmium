@@ -143,10 +143,10 @@ def is_valid_filename(filename):
             uses_reserved_name = True
     elif OS_TYPE == "Mac":
         # Not many invalid characters in Mac...
-        invalid_chars_regex = re.compile(r'((?![\/\:]).)+')
+        invalid_chars_regex = re.compile(r'((?![\/\:\x00]).)+')
     else:
         # Even less in Linux!
-        invalid_chars_regex = re.compile(r'((?![\/]).)+')
+        invalid_chars_regex = re.compile(r'((?![\/\x00]).)+')
     if re.match(invalid_chars_regex, filename):
         has_invalid_chars = True
     return has_invalid_chars or uses_reserved_name

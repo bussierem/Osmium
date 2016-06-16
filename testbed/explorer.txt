@@ -1,0 +1,53 @@
+ll========
+ BASICS
+========
+folder navigation
+display files and folders
+toggle hidden files
+top-bar showing CWD and path
+2 possible views:
+	icons  (grid)
+	details (column list)
+updates to metadata happen on window updates (deletions, directory changes, etc)
+W10-style tiling
+sidebar tree view (no other features)
+refresh button
+large requests (copying large files etc) indication
+	popup a "waiting..." window with cancel button
+================
+ EXTRA FEATURES
+================
+ASYNCHRONOUS METADATA/FOLDER UPDATES
+	Updates happen asynchronously, so they appear right after happening, even in other windows.
+	file size changes
+	renames
+	copy/move/delete
+
+progress bar for large requests (instead of "waiting...")
+
+tabbed navigation (ala Chrome)
+	open previously closed tabs
+	History
+
+shortcuts for adding files of diff types:
+	txt, bat, sh, py, rb, json
+	popup ask for filename/ext (default to .txt)?
+
+sidebar options:
+	jdiskreport-style pie chart showing memory usage of CWD
+	Allow updates on:
+		any update (new files, deletions, etc)
+		on directory change
+		manual only
+
+windows-style shortcuts in sidebar
+
+be able to add tags to folders
+	search for all folders with a specific tag
+	
+==============
+ FUTURE IDEAS
+==============
+Recursive Tree-like view of a selected folder, fully expanded
+
+source control/version control support

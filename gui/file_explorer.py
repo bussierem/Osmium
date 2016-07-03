@@ -1,6 +1,6 @@
 import os
-import sys
 import tkinter.ttk as ttk
+from collections import OrderedDict
 from tkinter import *
 
 
@@ -28,8 +28,13 @@ class FileExplorer(Frame):
         f = Frame(self.master)
         f.grid(row=0, column=1, sticky=NSEW)
         # tree and scrollbars
-        self.col_headers = ('Name', 'Size', 'Last Modified')
-        self.main_tree = ttk.Treeview(f, columns=self.col_headers, show='headings')
+        self.col_headers = OrderedDict([('Name', 5), ('Size', 1), ('Type', 1), ('Last Modified', 2)])
+        self.main_tree = ttk.Treeview(
+            f,
+            columns=self.col_headers.keys(),
+            displaycolumns=self.col_headers.keys(),
+            show='headings'
+        )
         ysb = ttk.Scrollbar(f, orient=VERTICAL, command=self.main_tree.yview)
         xsb = ttk.Scrollbar(f, orient=HORIZONTAL, command=self.main_tree.xview)
         self.main_tree['yscroll'] = ysb.set
@@ -40,14 +45,22 @@ class FileExplorer(Frame):
         xsb.grid(row=1, column=0, sticky=EW)
         # resize frame
         f.rowconfigure(0, weight=1)
-        f.columnconfigure(0, weight=9)
+        f.columnconfigure(0, weight=1)
+        self.main_tree.update()
+        # resize treeview columns
+        # TODO:  I hate this.  I need a better way to decide relative column widths
+        for idx, name in enumerate(self.col_headers.keys()):
+            col_width = 75 * self.col_headers[name]
+            self.main_tree.column(idx, minwidth=100, width=col_width, stretch=NO)
 
     def load_data(self):
         # TODO:  Load list of files/folders from cwd()
-        for c in self.col_headers:
-            self.main_tree.heading(c, text=c.title(),
-                                   command=lambda c=c: self._column_sort(c, self.sort_desc))
-            self.main_tree.column(c)
+        for idx, name in enumerate(self.col_headers.keys()):
+            self.main_tree.heading(
+                idx,
+                text=name,
+                command=lambda c=name: self._column_sort(c, self.sort_desc)
+            )
 
     def _column_sort(self, col, descending=False):
         # grab values to sort as a list of tuples (column value, column id)

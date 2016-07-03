@@ -103,7 +103,7 @@ class MainApp(Frame):
         self.tree_frame.grid(row=0, column=0, sticky=NSEW)
         # Make sure it expands to fit frame
         self.tree_frame.rowconfigure(0, weight=1)
-        self.tree_frame.columnconfigure(0, weight=2)
+        self.tree_frame.columnconfigure(0, weight=1)
 
     def render_file_grid(self):
         self.file_explorer = FileExplorer(self.main_frame)

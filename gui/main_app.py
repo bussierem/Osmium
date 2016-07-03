@@ -1,30 +1,12 @@
 import os
-import win32api
-from collections import OrderedDict
 from tkinter import *
 from tkinter import ttk
 
+from gui.tree_sidebar import TreeSidebar
 
 LIGHT_TEAL = "#00e6e6"
 DARK_TEAL = "#009999"
 BACKGROUND = "#6F807F"
-
-
-def get_used_drive_letters(os):
-    drive_lbls = OrderedDict()
-    if os == "Windows":
-        drives = win32api.GetLogicalDriveStrings()
-        drives = drives.split('\000')[:-1]
-        for d in drives:
-            drive_lbls[d] = d
-            try:
-                info = win32api.GetVolumeInformation(d)
-                drive_lbls[d] = info[0] if info[0] != '' else d
-            except:
-                continue
-    elif os == "Linux":
-        drive_lbls = {'/': 'Root', '/home/': 'Home'}
-    return drive_lbls
 
 
 class MainApp(Frame):
@@ -103,9 +85,7 @@ class MainApp(Frame):
 
     def render_tree_sidebar(self):
         self.tree_frame = Frame(self.main_frame)
-        self.tree_sidebar = ttk.Treeview(self.tree_frame, show='tree')
-        self.tree_sidebar.bind("<<TreeviewOpen>>", self.treeview_item_opened)
-        self.tree_sidebar.bind("<Button-1>", self.treeview_item_clicked)
+        self.tree_sidebar = TreeSidebar(self.tree_frame, show='tree')
         self.tree_y_scroll = ttk.Scrollbar(
             self.tree_frame, orient='vertical', command=self.tree_sidebar.yview
         )
@@ -113,7 +93,6 @@ class MainApp(Frame):
             self.tree_frame, orient='horizontal', command=self.tree_sidebar.xview
         )
         self.tree_sidebar.configure(yscroll=self.tree_y_scroll.set, xscroll=self.tree_x_scroll.set)
-        self.fill_treeview()
         self.tree_sidebar.grid(row=0, column=0, sticky=NSEW)
         self.tree_y_scroll.grid(row=0, column=1, sticky=NS)
         self.tree_x_scroll.grid(row=1, column=0, sticky=EW)
@@ -121,36 +100,6 @@ class MainApp(Frame):
         # Make sure it expands to fit frame
         self.tree_frame.rowconfigure(0, weight=1)
         self.tree_frame.columnconfigure(0, weight=1)
-
-    def treeview_item_opened(self, event):
-        parent = self.tree_sidebar.selection()[0]
-        for d in [sub for sub in os.listdir(parent) if os.path.isdir(os.path.join(parent, sub))]:
-            self.get_subdirs(os.path.join(parent, d))
-
-    def treeview_item_clicked(self, event):
-        loc = self.tree_sidebar.identify('item', event.x, event.y)
-        # TODO:  Call "goto location" method
-
-    def get_subdirs(self, parent_dir):
-        try:
-            subdirs = [name for name in os.listdir(parent_dir)
-                       if os.path.isdir(os.path.join(parent_dir, name))]
-        except:
-            return
-        for sub in subdirs:
-            self.tree_sidebar.insert(parent_dir, 'end', os.path.join(parent_dir, sub), text=sub)
-
-    def fill_treeview(self):
-        for loc in ['Desktop', 'Documents', 'Downloads']:
-            path = os.path.join(os.path.expanduser('~'), loc)
-            self.tree_sidebar.insert('', 'end', path, text=loc)
-        drives = get_used_drive_letters(self.OS_TYPE)
-        for key in drives.keys():
-            if key == drives[key]:
-                self.tree_sidebar.insert('', 'end', key, text=drives[key])
-            else:
-                self.tree_sidebar.insert('', 'end', key, text="{} ({})".format(drives[key], key))
-            self.get_subdirs(key)
 
     def render_file_grid(self):
         pass

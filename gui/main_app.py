@@ -90,9 +90,15 @@ class MainApp(Frame):
     def render_main_frame(self):
         self.main_frame = Frame(self.master)
         self.tree_sidebar = ttk.Treeview(self.main_frame, show='tree')
+        self.tree_sidebar.bind("<<TreeviewOpen>>", self.treeview_item_opened)
         self.fill_treeview()
         self.tree_sidebar.pack(side=LEFT, pady=2, fill=BOTH, expand=True)
         self.main_frame.pack(side=TOP, fill=BOTH, expand=True)
+
+    def treeview_item_opened(self, event):
+        parent = self.tree_sidebar.selection()[0]
+        for d in [sub for sub in os.listdir(parent) if os.path.isdir(os.path.join(parent, sub))]:
+            self.get_subdirs(os.path.join(parent, d))
 
     def get_subdirs(self, parent_dir):
         try:
@@ -126,16 +132,7 @@ class MainApp(Frame):
             self.get_subdirs(key)
 
     def create_buttons(self):
-        #                              BACK
-        # ---------------------------------
-        # back_button_black = PhotoImage(file="icons/black_icons/Left-52.png")
         self.back_button = Button(self.toolbar, relief=FLAT, text="<-")
         self.back_button.pack(side=LEFT)
-        # self.back_button.image = back_button_black
-        #                           FORWARD
-        # ---------------------------------
-        # forward_button_black = PhotoImage(file="icons/black_icons/Right-52.png")
         self.forward_button = Button(self.toolbar, relief=FLAT, text="->")
         self.forward_button.pack(side=LEFT)
-        # self.forward_button.grid(row=0, column=1)
-        # self.forward_button.image = forward_button_black

@@ -59,20 +59,17 @@ class MainApp(Frame):
     def __init__(self, master=None):
         self.master = master
         Frame.__init__(self, master, background=BACKGROUND)
-        self.get_os_type()
-        self.current_dir = StringVar()
-        self.current_search = StringVar()
-        self.render_toolbar()
-        self.render_main_frame()
-        self.pack()
-
-    def get_os_type(self):
         if sys.platform.startswith('darwin'):
             self.OS_TYPE = "Mac"
         elif os.name == "nt":
             self.OS_TYPE = "Windows"
         else:
             self.OS_TYPE = "Unix"
+        self.current_dir = StringVar()
+        self.current_search = StringVar()
+        self.render_toolbar()
+        self.render_main_frame()
+        self.pack()
 
     def render_toolbar(self):
         self.master.update()
@@ -89,11 +86,24 @@ class MainApp(Frame):
 
     def render_main_frame(self):
         self.main_frame = Frame(self.master)
-        self.tree_sidebar = ttk.Treeview(self.main_frame, show='tree')
-        self.tree_sidebar.bind("<<TreeviewOpen>>", self.treeview_item_opened)
-        self.fill_treeview()
-        self.tree_sidebar.pack(side=LEFT, pady=2, fill=BOTH, expand=True)
+        self.render_tree_sidebar()
         self.main_frame.pack(side=TOP, fill=BOTH, expand=True)
+
+    def render_tree_sidebar(self):
+        self.tree_frame = Frame(self.main_frame)
+        self.tree_sidebar = ttk.Treeview(self.tree_frame, show='tree')
+        self.tree_sidebar.bind("<<TreeviewOpen>>", self.treeview_item_opened)
+        self.tree_y_scroll = ttk.Scrollbar(self.tree_frame, orient='vertical', command=self.tree_sidebar.yview)
+        self.tree_x_scroll = ttk.Scrollbar(self.tree_frame, orient='horizontal', command=self.tree_sidebar.xview)
+        self.tree_sidebar.configure(yscroll=self.tree_y_scroll.set, xscroll=self.tree_x_scroll.set)
+        self.fill_treeview()
+        self.tree_sidebar.grid(row=0, column=0, sticky=NSEW)
+        self.tree_y_scroll.grid(row=0, column=1, sticky=NS)
+        self.tree_x_scroll.grid(row=1, column=0, sticky=EW)
+        self.tree_frame.pack(side=LEFT, pady=2, fill=BOTH, expand=True)
+        # Make sure it expands to fit frame
+        self.tree_frame.rowconfigure(0, weight=1)
+        self.tree_frame.columnconfigure(0, weight=1)
 
     def treeview_item_opened(self, event):
         parent = self.tree_sidebar.selection()[0]
@@ -110,19 +120,7 @@ class MainApp(Frame):
             self.tree_sidebar.insert(parent_dir, 'end', os.path.join(parent_dir, sub), text=sub)
 
     def fill_treeview(self):
-        """
-        Things to display top-level:
-            - Bookmarks
-                - Desktop
-                - Documents
-                - Downloads
-            - Show all active mounted drives
-            - LINUX:
-                /home/
-                /
-            - WINDOWS:
-                All drive letters [Name (Letter), or just Letter]
-        """
+        # TODO: Bookmarks  (Desktop, Documents, Downloads)
         drives = get_used_drive_letters(self.OS_TYPE)
         for key in drives.keys():
             if key == drives[key]:
@@ -132,7 +130,7 @@ class MainApp(Frame):
             self.get_subdirs(key)
 
     def create_buttons(self):
-        self.back_button = Button(self.toolbar, relief=FLAT, text="<-")
+        self.back_button = Button(self.toolbar, relief=FLAT, font=("Source Code Pro", "12"), text="<=")
         self.back_button.pack(side=LEFT)
-        self.forward_button = Button(self.toolbar, relief=FLAT, text="->")
+        self.forward_button = Button(self.toolbar, relief=FLAT, font=("Source Code Pro", "12"), text="=>")
         self.forward_button.pack(side=LEFT)

@@ -4,40 +4,15 @@ from collections import OrderedDict
 from tkinter import *
 from tkinter import ttk
 
-from PIL import Image
 
-# TODO:  ADD LINK TO https://icons8.com/ IN THE "ABOUT" PAGE!
-#   Distributed through Creative Commons Attribution-NoDerivs 3.0 Unported License
-#   https://creativecommons.org/licenses/by-nd/3.0/
-
-# Colors
 LIGHT_TEAL = "#00e6e6"
 DARK_TEAL = "#009999"
 BACKGROUND = "#6F807F"
 
 
-def resize_img(path):
-    img = Image.open(path)
-    pal = img.getpalette()
-    width, height = img.size
-    actual_transp = img.info['actual_transparency']
-    result = Image.new('LA', img.size)
-    im = img.load()
-    res = result.load()
-    for x in range(width):
-        for y in range(height):
-            t = actual_transp[im[x, y]]
-            color = pal[im[x, y]]
-            res[x, y] = (color, t)
-    result.resize((32, 32), Image.ANTIALIAS)
-    return result
-
-
 def get_used_drive_letters(os):
     drive_lbls = OrderedDict()
     if os == "Windows":
-        #                           WINDOWS
-        # ---------------------------------
         drives = win32api.GetLogicalDriveStrings()
         drives = drives.split('\000')[:-1]
         for d in drives:
@@ -48,9 +23,6 @@ def get_used_drive_letters(os):
             except:
                 continue
     elif os == "Linux":
-        #                             LINUX
-        # ---------------------------------
-        # Linux does not list drive letters
         drive_lbls = {'/': 'Root', '/home/': 'Home'}
     return drive_lbls
 

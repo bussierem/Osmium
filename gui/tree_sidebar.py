@@ -18,8 +18,9 @@ class TreeSidebar(Treeview):
         self.fill_treeview()
 
     def bind_events(self):
-        self.bind("<<TreeviewOpen>>", self.item_opened)
-        self.bind("<Button-1>", self.item_clicked)
+        # self.bind("<<TreeviewOpen>>", self.item_opened)
+        # self.bind("<Button-1>", self.item_clicked)
+        pass
 
     def get_subdirs(self, parent_dir):
         try:

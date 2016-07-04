@@ -12,7 +12,13 @@ class Toolbar(Frame):
         self.render_buttons()
         self.render_navbar()
         self.render_searchbar()
+        self.bind_events()
         self.pack(side=TOP, fill=X)
+
+    def bind_events(self):
+        self.nav_bar.bind('<Return>', self.on_changed_dir)
+        self.search_bar.bind('<Button-1>', self.on_search_click)
+        self.search_bar.bind('<Return>', self.on_enter)
 
     def render_buttons(self):
         self.back_button = Button(
@@ -58,8 +64,6 @@ class Toolbar(Frame):
             foreground="grey"
         )
         self.current_search.set("Search {}".format(self.app.HISTORY.get_current_dir()))
-        self.search_bar.bind('<Button-1>', self.on_search_click)
-        self.search_bar.bind('<Return>', self.on_enter)
         self.search_bar.pack(side=RIGHT)
 
     def set_dir(self, cwd):
@@ -75,6 +79,10 @@ class Toolbar(Frame):
 
     def on_enter(self, event):
         print("TODO:  Implement 'Search' method")
+
+    def on_changed_dir(self, event):
+        cwd = self.current_dir.get()
+        self.app.on_changed_dir(cwd)
 
     def back(self):
         self.app.change_dir(self.app.HISTORY.back())

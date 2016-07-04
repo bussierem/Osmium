@@ -1,10 +1,9 @@
 import os
 from tkinter import *
-from tkinter import ttk
 
 import gui.toolbar as tb
+import gui.tree_sidebar as sidebar
 from gui.file_explorer import FileExplorer
-from gui.tree_sidebar import TreeSidebar
 
 LIGHT_TEAL = "#00e6e6"
 DARK_TEAL = "#009999"
@@ -62,25 +61,25 @@ class MainApp(Frame):
         self.file_explorer.load_dir(cwd)
         self.toolbar.set_dir(cwd)
 
-    def on_changed_dir(self, event):
-        if event.widget == self.toolbar.nav_bar:
-            cwd = self.toolbar.current_dir
-        elif event.widget == self.tree_sidebar:
-            cwd = self.tree_sidebar.selection()[0]
-        elif event.widget == self.file_explorer.main_tree:
-            cwd = self.file_explorer.selection()
-        else:
-            return
+    def on_changed_dir(self, cwd):
         if os.path.isdir(cwd):
             self.HISTORY.new_dir(cwd)
             self.change_dir(cwd)
         elif os.path.isfile(cwd):
-            print("TODO:  Implement 'Open File' method")
+            self.open_file(cwd)
+
+    def open_file(self, filepath):
+        if self.OS_TYPE == "Mac":
+            command = "open"
+        elif self.OS_TYPE == "Windows":
+            command = "start"
+        else:
+            command = "xdg-open"
+        os.system("{} {}".format(command, filepath))
 
     def render_main_frame(self):
         self.main_frame = Frame(self.master, background="red")
         self.render_tree_sidebar()
-        self.tree_sidebar.bind("<<TreeviewOpen>>", self.on_changed_dir)
         self.render_file_grid()
         self.main_frame.pack(side=TOP, fill=BOTH, expand=True)
         self.main_frame.columnconfigure(0, weight=1)
@@ -88,24 +87,24 @@ class MainApp(Frame):
         self.main_frame.rowconfigure(0, weight=1)
 
     def render_tree_sidebar(self):
-        self.tree_frame = Frame(self.main_frame)
-        self.tree_sidebar = TreeSidebar(self.tree_frame, show='tree')
+        # self.tree_frame = Frame(self.main_frame)
+        self.tree_sidebar = sidebar.TreeSidebar(self.main_frame, self)
+        # self.tree_sidebar = TreeSidebar(self.tree_frame)
         # self.tree_sidebar.bind('<Double-1>', self.on_changed_dir)
-        self.tree_y_scroll = ttk.Scrollbar(
-            self.tree_frame, orient='vertical', command=self.tree_sidebar.yview
-        )
-        self.tree_x_scroll = ttk.Scrollbar(
-            self.tree_frame, orient='horizontal', command=self.tree_sidebar.xview
-        )
-        self.tree_sidebar.configure(yscroll=self.tree_y_scroll.set, xscroll=self.tree_x_scroll.set)
-        self.tree_sidebar.grid(row=0, column=0, sticky=NSEW)
-        self.tree_y_scroll.grid(row=0, column=1, sticky=NS)
-        self.tree_x_scroll.grid(row=1, column=0, sticky=EW)
-        self.tree_frame.grid(row=0, column=0, sticky=NSEW)
-        # Make sure it expands to fit frame
-        self.tree_frame.rowconfigure(0, weight=1)
-        self.tree_frame.columnconfigure(0, weight=1)
+        # self.tree_y_scroll = ttk.Scrollbar(
+        #     self.tree_frame, orient='vertical', command=self.tree_sidebar.yview
+        # )
+        # self.tree_x_scroll = ttk.Scrollbar(
+        #     self.tree_frame, orient='horizontal', command=self.tree_sidebar.xview
+        # )
+        # self.tree_sidebar.configure(yscroll=self.tree_y_scroll.set, xscroll=self.tree_x_scroll.set)
+        # self.tree_sidebar.grid(row=0, column=0, sticky=NSEW)
+        # self.tree_y_scroll.grid(row=0, column=1, sticky=NS)
+        # self.tree_x_scroll.grid(row=1, column=0, sticky=EW)
+        # self.tree_frame.grid(row=0, column=0, sticky=NSEW)
+        # # Make sure it expands to fit frame
+        # self.tree_frame.rowconfigure(0, weight=1)
+        # self.tree_frame.columnconfigure(0, weight=1)
 
     def render_file_grid(self):
         self.file_explorer = FileExplorer(self.main_frame, self)
-        self.file_explorer.main_tree.bind('<Double-1>', self.on_changed_dir)

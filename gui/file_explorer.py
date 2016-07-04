@@ -1,9 +1,13 @@
 import os
 import time
 import tkinter.ttk as ttk
+import win32api
+import win32con
 from collections import OrderedDict
 from os import path
 from tkinter import *
+
+from PIL import Image, ImageTk
 
 
 class FileExplorer(Frame):
@@ -27,24 +31,25 @@ class FileExplorer(Frame):
         return self.main_tree.focus()
 
     def bind_events(self):
-        self.main_tree.bind('<Return>', self.on_enter)
+        self.main_tree.bind('<Return>', self.on_changed_dir)
+        self.main_tree.bind('<Double-1>', self.on_changed_dir)
 
     def create_widgets(self):
         f = Frame(self.master)
         f.grid(row=0, column=1, sticky=NSEW)
         # tree and scrollbars
-        self.col_headers = OrderedDict([('', 0.3), ('Name', 5), ('Size', 1), ('Type', 1), ('Last Modified', 2)])
+        self.col_headers = OrderedDict([('Name', 5), ('Size', 1), ('Type', 1), ('Last Modified', 2)])
         self.main_tree = ttk.Treeview(
             f,
             columns=self.col_headers.keys(),
-            displaycolumns=self.col_headers.keys(),
-            show='headings'
+            # displaycolumns=self.col_headers.keys(),
+            show='tree headings'
         )
         ysb = ttk.Scrollbar(f, orient=VERTICAL, command=self.main_tree.yview)
         xsb = ttk.Scrollbar(f, orient=HORIZONTAL, command=self.main_tree.xview)
         self.main_tree['yscroll'] = ysb.set
         self.main_tree['xscroll'] = xsb.set
-        # add to frame
+        # add everything to frame
         self.main_tree.grid(row=0, column=0, sticky=NSEW)
         ysb.grid(row=0, column=1, sticky=NS)
         xsb.grid(row=1, column=0, sticky=EW)
@@ -57,6 +62,7 @@ class FileExplorer(Frame):
         for idx, name in enumerate(self.col_headers.keys()):
             col_width = int(75 * self.col_headers[name])
             self.main_tree.column(idx, minwidth=100, width=col_width, stretch=NO)
+        self.main_tree.column('#0', minwidth=10, width=50, stretch=NO, anchor=CENTER)
 
     def load_data(self):
         # TODO:  Load list of files/folders from cwd()
@@ -67,11 +73,21 @@ class FileExplorer(Frame):
                 command=lambda c=name: self._column_sort(c, self.sort_desc)
             )
         self.load_dir(os.path.expanduser('~'))
+        icon = Image.open('./icons/folder.gif')
+        self.folder = ImageTk.PhotoImage(icon)
+        self.main_tree.tag_configure('folder', image=self.folder)
 
     def load_dir(self, cwd):
         self.main_tree.delete(*self.main_tree.get_children())
         for item in sorted(os.listdir(cwd)):
-            self.display_cwd_item(os.path.join(cwd, item))
+            path = os.path.join(cwd, item)
+            try:
+                attribute = win32api.GetFileAttributes(path)
+                if not (attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)):
+                    self.display_cwd_item(path)
+            except:
+                # TODO: Need to figure out stupid permission errors
+                self.display_cwd_item(path)
 
     def _column_sort(self, col, descending=False):
         # grab values to sort as a list of tuples (column value, column id)
@@ -109,10 +125,14 @@ class FileExplorer(Frame):
         mod_time = time.localtime(path.getmtime(f))
         last_modified_12 = time.strftime("%m/%d/%y %I:%M:%S %p", mod_time)
         last_modified_24 = time.strftime("%m/%d/%y %H:%M:%S", mod_time)
-        data = ('', filename, size_str, type, last_modified_12)
-        self.main_tree.insert('', 'end', iid=f, values=data)
+        data = (filename, size_str, type, last_modified_12)
+        if type == "Folder":
+            self.main_tree.insert('', 'end', iid=f, tags='folder', values=data)
+        else:
+            self.main_tree.insert('', 'end', iid=f, values=data)
 
     #                                           EVENTS
     # ------------------------------------------------
-    def on_enter(self, event):
-        self.app.on_changed_dir(event)
+    def on_changed_dir(self, event):
+        cwd = self.main_tree.selection()[0]
+        self.app.on_changed_dir(cwd)

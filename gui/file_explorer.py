@@ -7,8 +7,9 @@ from tkinter import *
 
 
 class FileExplorer(Frame):
-    def __init__(self, master):
+    def __init__(self, master, app):
         self.master = master
+        self.app = app
         Frame.__init__(self, master)
         # self.pack(expand=True, fill=BOTH, side=RIGHT)
         if sys.platform.startswith('darwin'):
@@ -26,8 +27,7 @@ class FileExplorer(Frame):
         return self.main_tree.focus()
 
     def bind_events(self):
-        # TODO: Bind events
-        pass
+        self.main_tree.bind('<Return>', self.on_enter)
 
     def create_widgets(self):
         f = Frame(self.master)
@@ -111,3 +111,8 @@ class FileExplorer(Frame):
         last_modified_24 = time.strftime("%m/%d/%y %H:%M:%S", mod_time)
         data = ('', filename, size_str, type, last_modified_12)
         self.main_tree.insert('', 'end', iid=f, values=data)
+
+    #                                           EVENTS
+    # ------------------------------------------------
+    def on_enter(self, event):
+        self.app.on_changed_dir(event)

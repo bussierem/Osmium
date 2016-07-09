@@ -1,4 +1,3 @@
-import os
 import tkinter.ttk as ttk
 import win32api
 from collections import OrderedDict
@@ -7,18 +6,15 @@ from tkinter import messagebox
 
 from PIL import Image, ImageTk
 
+from utils.utilities import *
+
 
 class TreeSidebar(Frame):
     def __init__(self, master, app):
         self.master = master
         self.app = app
         Frame.__init__(self, master)
-        if sys.platform.startswith('darwin'):
-            self.OS_TYPE = "Mac"
-        elif os.name == "nt":
-            self.OS_TYPE = "Windows"
-        else:
-            self.OS_TYPE = "Unix"
+        self.OS_TYPE = get_os_type()
         self.render_treeview()
         self.bind_events()
         self.fill_treeview()

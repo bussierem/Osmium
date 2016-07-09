@@ -1,13 +1,14 @@
-import os
 import time
 import tkinter.ttk as ttk
 import win32api
-import win32con
 from collections import OrderedDict
 from os import path
 from tkinter import *
 
+import win32con
 from PIL import Image, ImageTk
+
+from utils.utilities import *
 
 
 class FileExplorer(Frame):
@@ -16,12 +17,7 @@ class FileExplorer(Frame):
         self.app = app
         Frame.__init__(self, master)
         # self.pack(expand=True, fill=BOTH, side=RIGHT)
-        if sys.platform.startswith('darwin'):
-            self.OS_TYPE = "Mac"
-        elif os.name == "nt":
-            self.OS_TYPE = "Windows"
-        else:
-            self.OS_TYPE = "Unix"
+        self.OS_TYPE = get_os_type()
         self.sort_desc = True
         self.create_widgets()
         self.load_data()

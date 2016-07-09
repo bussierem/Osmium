@@ -2,6 +2,7 @@ import os
 from tkinter import *
 
 import gui.toolbar as tb
+import gui.top_menu as menu
 import gui.tree_sidebar as sidebar
 from gui.file_explorer import FileExplorer
 
@@ -49,9 +50,13 @@ class MainApp(Frame):
         else:
             self.OS_TYPE = "Unix"
         self.HISTORY = History()
+        self.render_menu()
         self.render_toolbar()
         self.render_main_frame()
         self.pack()
+
+    def render_menu(self):
+        self.menu = menu.TopMenu(self.master)
 
     def render_toolbar(self):
         self.master.update()

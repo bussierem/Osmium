@@ -22,7 +22,6 @@ These are the features that, when complete, will represent what I consider to be
   - ~~Tree sidebar navigation~~
   - Bookmarks:
     - ~~Standard bookmarks (Desktop, Downloads, etc)~~
-    - User created bookmarks
   - Search Bar
   - Icons for files/~~folders~~ in main view
   - Right-click menu
@@ -34,5 +33,9 @@ These are features that I will only start looking at or considering after I have
   - "Tagging" of files/folders
   - Tabbed Navigation
     - Chrome-style shortcut keys for navigating tabs
+  - Remove File Menu
+    - Replace with F1 "Help" showing keyboard shortcuts
+  - User created bookmarks
+    -Make chrome-style bookmark bar??
   - Indexing/Caching for better Search performance
   - Optimizing performance

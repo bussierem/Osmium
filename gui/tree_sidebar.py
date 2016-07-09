@@ -15,6 +15,9 @@ class TreeSidebar(Frame):
         self.app = app
         Frame.__init__(self, master)
         self.OS_TYPE = get_os_type()
+        style = ttk.Style(self.master)
+        self.row_height = SIDEBAR_ROW_HEIGHT
+        style.configure('Sidebar.Treeview', rowheight=self.row_height)
         self.render_treeview()
         self.bind_events()
         self.fill_treeview()
@@ -24,7 +27,7 @@ class TreeSidebar(Frame):
         self.tree.bind("<Button-1>", self.item_clicked)
 
     def render_treeview(self):
-        self.tree = ttk.Treeview(self, show='tree')
+        self.tree = ttk.Treeview(self, show='tree', style='Sidebar.Treeview')
         self.render_scrollbars()
         self.grid(row=0, column=0, sticky=NSEW)
         # Make sure the tree expands to fit frame

@@ -1,6 +1,8 @@
 import os
 import sys
 
+SIDEBAR_ROW_HEIGHT = 25
+
 
 def get_os_type():
     if sys.platform.startswith('darwin'):

@@ -28,6 +28,22 @@ class FileExplorer(Frame):
     def bind_events(self):
         self.main_tree.bind('<Return>', self.on_changed_dir)
         self.main_tree.bind('<Double-1>', self.on_changed_dir)
+        self.main_tree.bind('<Button-1>', self.grab_item)
+        self.main_tree.bind('<ButtonRelease-1>', self.release)
+
+    def grab_item(self, event):
+        self.grabbed_item = self.main_tree.identify_row(event.y)
+
+    def release(self, event):
+        widget = self.winfo_containing(event.x_root, event.y_root)
+        if widget == self.app.tree_sidebar.tree:
+            item = widget.identify_row(event.y)
+            row_start = widget.bbox(item)[1]
+            row_middle = row_start + (SIDEBAR_ROW_HEIGHT / 2)
+            if event.y < row_middle:
+                print("insert above")
+            else:
+                print("insert below")
 
     def create_widgets(self):
         f = Frame(self.master)

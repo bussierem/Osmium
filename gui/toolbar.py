@@ -91,6 +91,8 @@ class Toolbar(Frame):
         self.app.change_dir(self.app.HISTORY.forward())
 
     def up_level(self):
-        up_one = os.path.sep.join(self.app.HISTORY.cwd.split(os.path.sep)[:-1])
-        self.app.HISTORY.new_dir(up_one)
-        self.app.change_dir(up_one)
+        cur_path = self.app.HISTORY.cwd.split(os.path.sep)
+        if len(cur_path) > 1:
+            up_one = os.path.sep.join(cur_path[:-1])
+            self.app.HISTORY.new_dir(up_one)
+            self.app.change_dir(up_one)

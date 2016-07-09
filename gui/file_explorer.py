@@ -16,7 +16,6 @@ class FileExplorer(Frame):
         self.master = master
         self.app = app
         Frame.__init__(self, master)
-        # self.pack(expand=True, fill=BOTH, side=RIGHT)
         self.OS_TYPE = get_os_type()
         self.sort_desc = True
         self.create_widgets()
@@ -38,7 +37,6 @@ class FileExplorer(Frame):
         self.main_tree = ttk.Treeview(
             f,
             columns=self.col_headers.keys(),
-            # displaycolumns=self.col_headers.keys(),
             show='tree headings'
         )
         ysb = ttk.Scrollbar(f, orient=VERTICAL, command=self.main_tree.yview)
@@ -61,7 +59,7 @@ class FileExplorer(Frame):
         self.main_tree.column('#0', minwidth=10, width=50, stretch=NO, anchor=CENTER)
 
     def load_data(self):
-        # TODO:  Load list of files/folders from cwd()
+        # TODO:  "Sort" by folder vs. file, THEN sort by name in each set!
         for idx, name in enumerate(self.col_headers.keys()):
             self.main_tree.heading(
                 idx,

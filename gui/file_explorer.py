@@ -34,17 +34,6 @@ class FileExplorer(Frame):
     def grab_item(self, event):
         self.grabbed_item = self.main_tree.identify_row(event.y)
 
-    def release(self, event):
-        widget = self.winfo_containing(event.x_root, event.y_root)
-        if widget == self.app.tree_sidebar.tree:
-            item = widget.identify_row(event.y)
-            row_start = widget.bbox(item)[1]
-            row_middle = row_start + (SIDEBAR_ROW_HEIGHT / 2)
-            if event.y < row_middle:
-                print("insert above")
-            else:
-                print("insert below")
-
     def create_widgets(self):
         f = Frame(self.master)
         f.grid(row=0, column=1, sticky=NSEW)
@@ -85,7 +74,10 @@ class FileExplorer(Frame):
         self.load_dir(os.path.expanduser('~'))
         icon = Image.open('./icons/folder.gif')
         self.folder = ImageTk.PhotoImage(icon)
+        icon = Image.open('./icons/file.gif')
+        self.file = ImageTk.PhotoImage(icon)
         self.main_tree.tag_configure('folder', image=self.folder)
+        self.main_tree.tag_configure('file', image=self.file)
 
     def load_dir(self, cwd):
         self.main_tree.delete(*self.main_tree.get_children())
@@ -139,7 +131,7 @@ class FileExplorer(Frame):
         if type == "Folder":
             self.main_tree.insert('', 'end', iid=f, tags='folder', values=data)
         else:
-            self.main_tree.insert('', 'end', iid=f, values=data)
+            self.main_tree.insert('', 'end', iid=f, tags='file', values=data)
 
     #                                           EVENTS
     # ------------------------------------------------

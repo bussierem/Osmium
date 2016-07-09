@@ -36,6 +36,6 @@ These are features that I will only start looking at or considering after I have
   - Remove File Menu
     - Replace with F1 "Help" showing keyboard shortcuts
   - User created bookmarks
-    -Make chrome-style bookmark bar??
+    - Make chrome-style bookmark bar??
   - Indexing/Caching for better Search performance
   - Optimizing performance

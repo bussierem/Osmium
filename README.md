@@ -12,6 +12,7 @@ The current plan is to create the MVP (Minimum Viable Product) to replicate the 
 These are the features that, when complete, will represent what I consider to be a "barebones file explorer".  This feature list will be sporadic in nature and varying in specificity - just things I think of as I code.
   - ~~Basic folder/file navigation~~
   - ~~File/etc Menu~~
+    - **NOTE:** Not all of the menu options will be implemented in the MVP
   - ~~"URL" path navigation bar~~
   - ~~Buttons:~~
     - ~~Back~~

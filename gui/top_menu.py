@@ -23,6 +23,10 @@ class TopMenu(Frame):
 
         self.file_menu.add_separator()
 
+        self.file_menu.add_command(label="Next Tab", command=self.TODO, accelerator="Ctrl+Tab")
+        self.bind("<Control-Tab>", self.TODO)
+        self.file_menu.add_command(label="Previous Tab", command=self.TODO, accelerator="Ctrl+Shift+Tab")
+        self.bind("<Control-Shift-Tab>", self.TODO)
         self.file_menu.add_command(label="Reopen Last Tab", command=self.TODO, accelerator="Ctrl+Shift+T")
         self.bind("<Control-Shift-t>", self.TODO)
 

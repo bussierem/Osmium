@@ -10,18 +10,20 @@ The current plan is to create the MVP (Minimum Viable Product) to replicate the 
 
 ### Minimum Viable Product Features
 These are the features that, when complete, will represent what I consider to be a "barebones file explorer".  This feature list will be sporadic in nature and varying in specificity - just things I think of as I code.
-  - Basic folder/file navigation
-  - File/etc Menu
-  - "URL" path navigation bar
-  - Buttons:
-    - Back
-    - Forward
-    - "Up One Level"
-  - Open files with default OS app
-  - Tree sidebar navigation
-  - Bookmarks in sidebar (Desktop, Downloads, etc)
+  - ~~Basic folder/file navigation~~
+  - ~~File/etc Menu~~
+  - ~~"URL" path navigation bar~~
+  - ~~Buttons:~~
+    - ~~Back~~
+    - ~~Forward~~
+    - ~~"Up One Level"~~
+  - ~~Open files with default OS app~~
+  - ~~Tree sidebar navigation~~
+  - Bookmarks:
+    - ~~Standard bookmarks (Desktop, Downloads, etc)~~
+    - User created bookmarks
   - Search Bar
-  - Icons for files/folders in main view
+  - Icons for files/~~folders~~ in main view
   - Right-click menu
 
 ---

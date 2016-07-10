@@ -51,6 +51,8 @@ class TopMenu(Frame):
         self.bind("<Control-c>", self.TODO)
         self.edit_menu.add_command(label="Paste", command=self.TODO, accelerator="Ctrl+V")
         self.bind("<Control-v>", self.TODO)
+        self.edit_menu.add_command(label="Rename", command=self.TODO, accelerator="F2")
+        self.bind("<F2>", self.TODO)
 
         self.edit_menu.add_separator()
 

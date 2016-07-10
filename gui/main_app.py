@@ -32,6 +32,9 @@ class History:
     def get_current_dir(self):
         return self.cwd.split(os.path.sep)[-1]
 
+    def get_full_cwd(self):
+        return self.cwd
+
     def new_dir(self, cwd):
         self.list = self.list[:self.index + 1]
         self.list.append(cwd)
@@ -50,6 +53,7 @@ class MainApp(Frame):
         else:
             self.OS_TYPE = "Unix"
         self.HISTORY = History()
+        self.CUT = False
         self.render_menu()
         self.render_toolbar()
         self.render_main_frame()

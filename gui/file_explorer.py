@@ -1,9 +1,11 @@
+import shutil
 import time
 import tkinter.ttk as ttk
 import win32api
 from collections import OrderedDict
 from os import path
 from tkinter import *
+from tkinter import messagebox
 
 import win32con
 from PIL import Image, ImageTk
@@ -20,6 +22,7 @@ class FileExplorer(Frame):
         self.sort_desc = True
         self.create_widgets()
         self.load_data()
+        # self.build_right_click_menu()
         self.bind_events()
 
     def selection(self):
@@ -28,11 +31,16 @@ class FileExplorer(Frame):
     def bind_events(self):
         self.main_tree.bind('<Return>', self.on_changed_dir)
         self.main_tree.bind('<Double-1>', self.on_changed_dir)
-        self.main_tree.bind('<Button-1>', self.grab_item)
-        self.main_tree.bind('<ButtonRelease-1>', self.release)
-
-    def grab_item(self, event):
-        self.grabbed_item = self.main_tree.identify_row(event.y)
+        self.main_tree.bind('<Button-3>', self.render_right_click_menu)
+        # Right-click functions
+        self.main_tree.bind("<Control-d>", self.TODO)
+        self.main_tree.bind("<Control-Shift-d>", self.TODO)
+        self.main_tree.bind("<Control-b>", self.TODO)
+        self.main_tree.bind("<Control-x>", self.on_cut)
+        self.main_tree.bind("<Control-c>", self.on_copy)
+        self.main_tree.bind("<Control-v>", self.on_paste)
+        self.main_tree.bind("<Delete>", self.TODO)
+        self.main_tree.bind("<Shift-Delete>", self.TODO)
 
     def create_widgets(self):
         f = Frame(self.master)
@@ -133,8 +141,88 @@ class FileExplorer(Frame):
         else:
             self.main_tree.insert('', 'end', iid=f, tags='file', values=data)
 
+    def build_right_click_menu(self, properties, coords):
+        self.b2_menu = Menu(self.master, tearoff=0)
+        if properties['tag'] == False:
+            self.b2_menu.add_command(label="Tag", command=self.TODO)
+        else:
+            self.b2_menu.add_command(label="Untag", command=self.TODO)
+        if properties['folder'] == True:
+            self.b2_menu.add_command(label="Bookmark", command=self.TODO)
+        self.b2_menu.add_separator()
+        self.b2_menu.add_command(label="Cut", command=self.on_cut)
+        self.b2_menu.add_command(label="Copy", command=self.on_copy)
+        self.b2_menu.add_command(label="Paste", command=self.on_paste)
+        self.b2_menu.add_separator()
+        self.b2_menu.add_command(label="Recycle", command=self.TODO)
+        self.b2_menu.add_command(label="Delete", command=self.TODO)
+        self.b2_menu.add_command(label="Rename", command=self.TODO)
+        self.b2_menu.add_separator()
+        self.b2_menu.add_command(label="Properties", command=self.TODO)
+        x, y = coords
+        self.b2_menu.post(x, y)
+
+    def TODO(self, event=None):
+        # TODO:  Linking all commands to here until implemented
+        pass
+
     #                                           EVENTS
     # ------------------------------------------------
     def on_changed_dir(self, event):
         cwd = self.main_tree.selection()[0]
         self.app.on_changed_dir(cwd)
+
+    def on_cut(self, event=None):
+        item = self.main_tree.selection()[0]
+        write_clipboard(self.master, data=item)
+        self.app.CUT = True
+
+    def on_copy(self, event=None):
+        item = self.main_tree.selection()[0]
+        write_clipboard(self.master, data=item)
+
+    def on_paste(self, event=None):
+        item = read_clipboard(self.master)
+        if event is None:
+            dest = self.app.HISTORY.get_current_dir()
+        else:
+            sel = self.main_tree.selection()
+            dest = sel[0] if sel else self.app.HISTORY.get_full_cwd()
+            if os.path.isfile(dest):
+                dest = self.app.HISTORY.get_full_cwd()
+        if self.app.CUT:
+            if os.path.sep.join(item.split(os.path.sep)[:-1]) == dest:
+                messagebox.showinfo("Paste Attempted Interrupted", "Source and Destination are the same")
+            else:
+                shutil.move(item, dest)
+        else:
+            src_path = item.split(os.path.sep)
+            srcfile, ext = os.path.splitext(src_path[-1])
+            copy_name = srcfile
+            copy_count = 1
+            while os.path.exists(os.path.join(dest, copy_name) + ext):
+                copy_name = "{} ({})".format(srcfile, copy_count)
+                copy_count += 1
+            copy_name += ext
+            dest += os.path.sep
+            start = time.time()
+            if os.path.isdir(item):
+                # TODO:  WHY WILL THIS NOT WORK?!!!  GAHH!!
+                copytree(item, os.path.join(dest, copy_name))
+            else:
+                copyfile(item, os.path.join(dest, copy_name))
+            print("{:.4f} seconds".format(time.time() - start))
+            self.app.on_changed_dir(self.app.HISTORY.get_full_cwd())
+        self.app.CUT = False
+
+    def render_right_click_menu(self, event):
+        widget = self.winfo_containing(event.x_root, event.y_root)
+        # Make sure they didn't click the headers
+        if widget.identify_region(event.x, event.y) in ['tree', 'cell']:
+            item = widget.identify_row(event.y)
+            widget.selection_set([item])
+            props = {}
+            # TODO:  Check for tags when implemented
+            props['tag'] = False
+            props['folder'] = True if self.main_tree.tag_has('folder', item) else False
+            self.build_right_click_menu(props, (event.x_root, event.y_root))

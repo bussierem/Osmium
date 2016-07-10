@@ -1,6 +1,8 @@
 import os
 import sys
 
+import time
+
 SIDEBAR_ROW_HEIGHT = 25
 CUT_ENABLED = None
 
@@ -43,6 +45,7 @@ BUFFER_SIZE = 128 * 1024
 
 def copyfile(src, dst):
     try:
+        print("Copying file [{}] to [{}]".format(src, dst))
         fin = os.open(src, READ_FLAGS)
         stat = os.fstat(fin)
         fout = os.open(dst, WRITE_FLAGS, stat.st_mode)
@@ -61,7 +64,7 @@ def copyfile(src, dst):
 
 def copytree(src, dst, symlinks=False, ignore=[]):
     names = os.listdir(src)
-
+    print("Copying tree [{}] to [{}]".format(src, dst))
     if not os.path.exists(dst):
         os.makedirs(dst)
     errors = []
@@ -75,7 +78,10 @@ def copytree(src, dst, symlinks=False, ignore=[]):
                 linkto = os.readlink(srcname)
                 os.symlink(linkto, dstname)
             elif os.path.isdir(srcname):
-                copytree(srcname, dstname, symlinks, ignore)
+                try:
+                    copytree(srcname, dstname, symlinks, ignore)
+                except EnvironmentError as e:
+                    print("An error occurred {}".format(e))
             else:
                 copyfile(srcname, dstname)
                 # XXX What about devices, sockets etc.?
@@ -83,5 +89,13 @@ def copytree(src, dst, symlinks=False, ignore=[]):
             errors.append((srcname, dstname, str(why)))
         except CTError as err:
             errors.extend(err.errors)
+        except EnvironmentError as env:
+            errors.append((srcname, dstname, str(env)))
     if errors:
         raise CTError(errors)
+
+
+def thread_finished(thing):
+    print("Finished copy thread!")
+    print("thing = {}".format(thing))
+    print("End:  {}".format(time.time()))

@@ -1,5 +1,5 @@
+import multiprocessing
 import shutil
-import time
 import tkinter.ttk as ttk
 import win32api
 from collections import OrderedDict
@@ -194,6 +194,12 @@ class FileExplorer(Frame):
             if os.path.sep.join(item.split(os.path.sep)[:-1]) == dest:
                 messagebox.showinfo("Paste Attempted Interrupted", "Source and Destination are the same")
             else:
+                pool = multiprocessing.Pool(processes=1)
+                result = pool.apply_async(
+                    shutil.move,
+                    [item, dest],
+                    callback=self.copy_thread_finished
+                )
                 shutil.move(item, dest)
         else:
             src_path = item.split(os.path.sep)
@@ -205,15 +211,22 @@ class FileExplorer(Frame):
                 copy_count += 1
             copy_name += ext
             dest += os.path.sep
-            start = time.time()
+            self.start = time.time()
             if os.path.isdir(item):
-                # TODO:  WHY WILL THIS NOT WORK?!!!  GAHH!!
-                copytree(item, os.path.join(dest, copy_name))
+                try:
+                    pool = multiprocessing.Pool(processes=1)
+                    result = pool.apply_async(shutil.copytree, [item, os.path.join(dest, copy_name)],
+                                              callback=self.copy_thread_finished)
+                except EnvironmentError as e:
+                    print("Error occurred: {}".format(e))
             else:
                 copyfile(item, os.path.join(dest, copy_name))
-            print("{:.4f} seconds".format(time.time() - start))
-            self.app.on_changed_dir(self.app.HISTORY.get_full_cwd())
         self.app.CUT = False
+
+    def copy_thread_finished(self, copied_item):
+        print("Finished cut/copy thread!")
+        print("Total:  {:.4f}".format(time.time() - self.start))
+        self.app.on_changed_dir(self.app.HISTORY.get_full_cwd())
 
     def render_right_click_menu(self, event):
         widget = self.winfo_containing(event.x_root, event.y_root)

@@ -1,10 +1,15 @@
+import ntpath
 import os
 import sys
-
 import time
+import win32clipboard as wincb
+
+import pyperclip
 
 SIDEBAR_ROW_HEIGHT = 25
 CUT_ENABLED = None
+wincb_formats = {val: name for name, val in vars(wincb).items() if name.startswith('CF_')}
+
 
 def get_os_type():
     if sys.platform.startswith('darwin'):
@@ -16,86 +21,62 @@ def get_os_type():
     return os_type
 
 
-def read_clipboard(app):
-    return app.selection_get(selection="CLIPBOARD")
-
-
-def write_clipboard(app, data: str):
-    app.clipboard_clear()
-    app.clipboard_append(str(data))
-
-
-def fast_copy(src, dest):
-    pass
-
-
-class CTError(Exception):
-    def __init__(self, errors):
-        self.errors = errors
-
-
-try:
-    O_BINARY = os.O_BINARY
-except:
-    O_BINARY = 0
-READ_FLAGS = os.O_RDONLY | O_BINARY
-WRITE_FLAGS = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | O_BINARY
-BUFFER_SIZE = 128 * 1024
-
-
-def copyfile(src, dst):
-    try:
-        print("Copying file [{}] to [{}]".format(src, dst))
-        fin = os.open(src, READ_FLAGS)
-        stat = os.fstat(fin)
-        fout = os.open(dst, WRITE_FLAGS, stat.st_mode)
-        for x in iter(lambda: os.read(fin, BUFFER_SIZE), ""):
-            os.write(fout, x)
-    finally:
+def read_clipboard_win():
+    wincb.OpenClipboard(None)
+    data = None
+    for k in wincb_formats.keys():
         try:
-            os.close(fin)
-        except:
-            pass
-        try:
-            os.close(fout)
-        except:
-            pass
-
-
-def copytree(src, dst, symlinks=False, ignore=[]):
-    names = os.listdir(src)
-    print("Copying tree [{}] to [{}]".format(src, dst))
-    if not os.path.exists(dst):
-        os.makedirs(dst)
-    errors = []
-    for name in names:
-        if name in ignore:
+            data = wincb.GetClipboardData(k)
+        except TypeError:
             continue
-        srcname = os.path.join(src, name)
-        dstname = os.path.join(dst, name)
-        try:
-            if symlinks and os.path.islink(srcname):
-                linkto = os.readlink(srcname)
-                os.symlink(linkto, dstname)
-            elif os.path.isdir(srcname):
-                try:
-                    copytree(srcname, dstname, symlinks, ignore)
-                except EnvironmentError as e:
-                    print("An error occurred {}".format(e))
+        if data != None:
+            if isinstance(data, tuple):
+                print("Format: {}".format(wincb_formats[k]))
+                print(data)
+                data = data[0]
             else:
-                copyfile(srcname, dstname)
-                # XXX What about devices, sockets etc.?
-        except (IOError, os.error) as why:
-            errors.append((srcname, dstname, str(why)))
-        except CTError as err:
-            errors.extend(err.errors)
-        except EnvironmentError as env:
-            errors.append((srcname, dstname, str(env)))
-    if errors:
-        raise CTError(errors)
+                data = data.decode()
+            break
+    wincb.CloseClipboard()
+    return data
 
+
+def read_clipboard_unix():
+    return pyperclip.paste()
+
+
+def read_clipboard():
+    if get_os_type() == "Windows":
+        return read_clipboard_win()
+    else:
+        return read_clipboard_unix()
+
+
+def write_clipboard(data: str, file=False):
+    if not file:
+        pyperclip.copy(data)
+        return
+    wincb.OpenClipboard(None)
+    format = [k for k in wincb_formats.keys() if wincb_formats[k] == 'CF_HDROP'][0]
+    try:
+        wincb.SetClipboardData(format, data)
+    except:
+        pass
+    wincb.CloseClipboard()
 
 def thread_finished(thing):
     print("Finished copy thread!")
     print("thing = {}".format(thing))
     print("End:  {}".format(time.time()))
+
+
+def rename_copy(src_path, dest_path):
+    srcfile, ext = os.path.splitext(src_path.split(os.path.sep)[-1])
+    copy_name = srcfile
+    copy_count = 1
+    dst = ntpath.split(dest_path)[0]
+    while os.path.exists(os.path.join(dst, copy_name) + ext):
+        copy_name = "{} ({})".format(srcfile, copy_count)
+        copy_count += 1
+    copy_name += ext
+    return os.path.join(dst, copy_name)

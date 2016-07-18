@@ -52,3 +52,6 @@ These are features that I will only start looking at or considering after I have
     - Prioritize tagged files
   - Optimizing performance
   - "Open With" Option
+  - Allow "delete confirmation" popup to be disabled via checkbox on popup
+    - by filetype or location advanced disable?
+  - Add "Recycle instead" option to "delete confirmation" popup

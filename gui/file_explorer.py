@@ -1,15 +1,13 @@
-import multiprocessing
-import shutil
 import tkinter.ttk as ttk
 import win32api
 from collections import OrderedDict
 from os import path
 from tkinter import *
-from tkinter import messagebox
 
 import win32con
 from PIL import Image, ImageTk
 
+import handlers.file_operations as fileops
 from utils.utilities import *
 
 
@@ -172,17 +170,17 @@ class FileExplorer(Frame):
         cwd = self.main_tree.selection()[0]
         self.app.on_changed_dir(cwd)
 
-    def on_cut(self, event=None):
+    def on_cut(self, event):
         item = self.main_tree.selection()[0]
-        write_clipboard(self.master, data=item)
-        self.app.CUT = True
+        write_clipboard(item, os.path.isfile(item))
+        fileops.cut_file(item)
 
-    def on_copy(self, event=None):
+    def on_copy(self, event):
         item = self.main_tree.selection()[0]
-        write_clipboard(self.master, data=item)
+        write_clipboard(item, os.path.isfile(item))
+        fileops.copy_file(item)
 
     def on_paste(self, event=None):
-        item = read_clipboard(self.master)
         if event is None:
             dest = self.app.HISTORY.get_current_dir()
         else:
@@ -190,42 +188,9 @@ class FileExplorer(Frame):
             dest = sel[0] if sel else self.app.HISTORY.get_full_cwd()
             if os.path.isfile(dest):
                 dest = self.app.HISTORY.get_full_cwd()
-        if self.app.CUT:
-            if os.path.sep.join(item.split(os.path.sep)[:-1]) == dest:
-                messagebox.showinfo("Paste Attempted Interrupted", "Source and Destination are the same")
-            else:
-                pool = multiprocessing.Pool(processes=1)
-                result = pool.apply_async(
-                    shutil.move,
-                    [item, dest],
-                    callback=self.copy_thread_finished
-                )
-                shutil.move(item, dest)
-        else:
-            src_path = item.split(os.path.sep)
-            srcfile, ext = os.path.splitext(src_path[-1])
-            copy_name = srcfile
-            copy_count = 1
-            while os.path.exists(os.path.join(dest, copy_name) + ext):
-                copy_name = "{} ({})".format(srcfile, copy_count)
-                copy_count += 1
-            copy_name += ext
-            dest += os.path.sep
-            self.start = time.time()
-            if os.path.isdir(item):
-                try:
-                    pool = multiprocessing.Pool(processes=1)
-                    result = pool.apply_async(shutil.copytree, [item, os.path.join(dest, copy_name)],
-                                              callback=self.copy_thread_finished)
-                except EnvironmentError as e:
-                    print("Error occurred: {}".format(e))
-            else:
-                copyfile(item, os.path.join(dest, copy_name))
-        self.app.CUT = False
+        fileops.paste_file(dest, self.paste_thread_finished)
 
-    def copy_thread_finished(self, copied_item):
-        print("Finished cut/copy thread!")
-        print("Total:  {:.4f}".format(time.time() - self.start))
+    def paste_thread_finished(self, item):
         self.app.on_changed_dir(self.app.HISTORY.get_full_cwd())
 
     def render_right_click_menu(self, event):

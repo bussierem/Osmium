@@ -76,6 +76,7 @@ class RecycleOperation(FileOperation):
 class DeleteOperation(FileOperation):
     def __init__(self, source, callback=None):
         self.type = OpType.delete
+        print(source)
         func = shutil.rmtree if os.path.isdir(source) else os.remove
         super().__init__(func, source, args=[source], callback=callback)
 

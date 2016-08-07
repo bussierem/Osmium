@@ -23,14 +23,14 @@ These are the features that, when complete, will represent what I consider to be
   - Search Bar
   - ~~Icons for files/folders in main view~~
   - Right-click menu
-    - Cut/Copy/Paste
-    - Delete (with confirm)
-        - This goes to Recycle Bin
+    - ~~Cut/Copy/Paste~~
+    - ~~Delete (with confirm)~~
+        - ~~This goes to Recycle Bin~~
     - Rename (popup with name and ext options)
     - Bookmark (Folders only!)
-    - Tag (Not implemented in MVP)
-    - Properties
-  - Confirm popup on Shift+Delete
+    - ~~Tag (Not implemented in MVP)~~
+    - ~~Properties~~
+  - ~~Confirm popup on Shift+Delete~~
   - "Properties" popup window 
 
 ---
@@ -41,6 +41,7 @@ These are features that I will only start looking at or considering after I have
     - Right-Click/Menu functionality
   - Tabbed Navigation
     - Chrome-style shortcut keys for navigating tabs
+  - Determine and add some right-click menu for the column headers
   - Remove File Menu
     - Replace with F1 "Help" showing keyboard shortcuts
     - Create "Settings" button in Bookmarks Bar

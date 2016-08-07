@@ -93,6 +93,9 @@ class MainApp(Frame):
         elif os.path.isfile(cwd):
             self.open_file(cwd)
 
+    def on_refresh_dir(self, item=None):
+        self.change_dir(self.HISTORY.get_full_cwd())
+
     def open_file(self, filepath):
         if self.OS_TYPE == "Mac":
             command = "open"

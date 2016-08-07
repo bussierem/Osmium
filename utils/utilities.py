@@ -1,5 +1,6 @@
 import ntpath
 import os
+import re
 import sys
 import time
 import win32clipboard as wincb
@@ -80,3 +81,37 @@ def rename_copy(src_path, dest_path):
         copy_count += 1
     copy_name += ext
     return os.path.join(dst, copy_name)
+
+
+def is_valid_filename(filename):
+    has_invalid_chars = False
+    uses_reserved_name = False
+    OS_TYPE = get_os_type()
+    if OS_TYPE == "Windows":
+        # Lots of things banned in Windows...
+        invalid_chars_regex = re.compile(r'((?![<>:"|?\/\\*]).)+')
+        # Extra reserved names to check for
+        reserved_names_regex = re.compile(
+            r'^(COM[1-9])|(LPT[1-9])|(PRN|AUX|NUL|CON)$'
+        )
+        if re.match(reserved_names_regex, filename):
+            uses_reserved_name = True
+    elif OS_TYPE == "Mac":
+        # Not many invalid characters in Mac...
+        invalid_chars_regex = re.compile(r'((?![\/\:\x00]).)+')
+    else:
+        # Even less in Linux!
+        invalid_chars_regex = re.compile(r'((?![\/\x00]).)+')
+    if re.match(invalid_chars_regex, filename):
+        has_invalid_chars = True
+    return has_invalid_chars or uses_reserved_name
+
+
+def get_invalid_chars():
+    OS_TYPE = get_os_type()
+    if OS_TYPE == "Windows":
+        return r'/  \  <  >  :  "  *  |  ?'
+    elif OS_TYPE == 'Mac':
+        return r'/  :'
+    else:
+        return r'/'

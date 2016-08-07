@@ -8,6 +8,7 @@ import win32con
 from PIL import Image, ImageTk
 
 import handlers.file_operations as fileops
+from gui.rename_popup import RenamePopup
 from utils.utilities import *
 
 
@@ -15,12 +16,12 @@ class FileExplorer(Frame):
     def __init__(self, master, app):
         self.master = master
         self.app = app
+        self.right_click_coords = (0, 0)
         Frame.__init__(self, master)
         self.OS_TYPE = get_os_type()
         self.sort_desc = True
         self.create_widgets()
         self.load_data()
-        # self.build_right_click_menu()
         self.bind_events()
 
     def selection(self):
@@ -30,15 +31,18 @@ class FileExplorer(Frame):
         self.main_tree.bind('<Return>', self.on_changed_dir)
         self.main_tree.bind('<Double-1>', self.on_changed_dir)
         self.main_tree.bind('<Button-3>', self.render_right_click_menu)
+        # Refresh
+        self.main_tree.bind('<F5>', self.app.on_refresh_dir)
         # Right-click functions
-        self.main_tree.bind("<Control-d>", self.TODO)
-        self.main_tree.bind("<Control-Shift-d>", self.TODO)
-        self.main_tree.bind("<Control-b>", self.TODO)
+        self.main_tree.bind("<Control-d>", self.TODO)  # Tag
+        self.main_tree.bind("<Control-Shift-d>", self.TODO)  # Un-tag
+        self.main_tree.bind("<Control-b>", self.TODO)  # Bookmark
         self.main_tree.bind("<Control-x>", self.on_cut)
         self.main_tree.bind("<Control-c>", self.on_copy)
         self.main_tree.bind("<Control-v>", self.on_paste)
-        self.main_tree.bind("<Delete>", self.TODO)
-        self.main_tree.bind("<Shift-Delete>", self.TODO)
+        self.main_tree.bind("<F2>", self.rename_target)
+        self.main_tree.bind("<Delete>", self.recycle_target)
+        self.main_tree.bind("<Shift-Delete>", self.delete_target)
 
     def create_widgets(self):
         f = Frame(self.master)
@@ -141,28 +145,40 @@ class FileExplorer(Frame):
 
     def build_right_click_menu(self, properties, coords):
         self.b2_menu = Menu(self.master, tearoff=0)
-        if properties['tag'] == False:
-            self.b2_menu.add_command(label="Tag", command=self.TODO)
+        menu_items_full = OrderedDict([
+            ("Tag", self.TODO),
+            ("Untag", self.TODO),
+            ("Bookmark", self.TODO),
+            ("1", "SEP"),
+            ("Cut", self.on_cut),
+            ("Copy", self.on_copy),
+            ("Paste", self.on_paste),
+            ("2", "SEP"),
+            ("Delete", self.recycle_target),
+            ("Rename", self.rename_target),
+            ("3", "SEP"),
+            ("Properties", self.TODO)
+        ])
+        menu_items_no_file = OrderedDict([
+            ("Paste", self.on_paste),
+            ("1", "SEP"),
+            ("Properties", self.TODO)
+        ])
+        if properties != {}:
+            render_items = menu_items_full
         else:
-            self.b2_menu.add_command(label="Untag", command=self.TODO)
-        if properties['folder'] == True:
-            self.b2_menu.add_command(label="Bookmark", command=self.TODO)
-        self.b2_menu.add_separator()
-        self.b2_menu.add_command(label="Cut", command=self.on_cut)
-        self.b2_menu.add_command(label="Copy", command=self.on_copy)
-        self.b2_menu.add_command(label="Paste", command=self.on_paste)
-        self.b2_menu.add_separator()
-        self.b2_menu.add_command(label="Recycle", command=self.TODO)
-        self.b2_menu.add_command(label="Delete", command=self.TODO)
-        self.b2_menu.add_command(label="Rename", command=self.TODO)
-        self.b2_menu.add_separator()
-        self.b2_menu.add_command(label="Properties", command=self.TODO)
+            render_items = menu_items_no_file
+        for lbl, cmd in render_items.items():
+            if cmd == "SEP":
+                self.b2_menu.add_separator()
+            else:
+                self.b2_menu.add_command(label=lbl, command=cmd)
         x, y = coords
         self.b2_menu.post(x, y)
 
     def TODO(self, event=None):
         # TODO:  Linking all commands to here until implemented
-        pass
+        print("TODO:  This event still needs to be completed/linked!")
 
     #                                           EVENTS
     # ------------------------------------------------
@@ -170,12 +186,12 @@ class FileExplorer(Frame):
         cwd = self.main_tree.selection()[0]
         self.app.on_changed_dir(cwd)
 
-    def on_cut(self, event):
+    def on_cut(self, event=None):
         item = self.main_tree.selection()[0]
         write_clipboard(item, os.path.isfile(item))
         fileops.cut_file(item)
 
-    def on_copy(self, event):
+    def on_copy(self, event=None):
         item = self.main_tree.selection()[0]
         write_clipboard(item, os.path.isfile(item))
         fileops.copy_file(item)
@@ -190,17 +206,51 @@ class FileExplorer(Frame):
                 dest = self.app.HISTORY.get_full_cwd()
         fileops.paste_file(dest, self.paste_thread_finished)
 
+    def recycle_target(self, event=None):
+        if event.widget == self.main_tree:
+            sel = self.main_tree.selection()[0]
+            fileops.recycle_file(sel, self.app.on_refresh_dir)
+
+    def delete_target(self, event=None):
+        if event.widget == self.main_tree:
+            sel = self.main_tree.selection()[0]
+            fileops.delete_file(sel, self.app.on_refresh_dir)
+
+    def rename_target(self, event=None):
+        if event is not None:  # Called with <F2>
+            if event.widget != self.main_tree:
+                return
+            else:
+                row = self.main_tree.selection()[0]
+                col = "#1"
+        else:  # Called from Right-click menu
+            col = self.main_tree.identify_column(self.right_click_coords[0])
+            row = self.main_tree.identify_row(self.right_click_coords[1])
+        _, y, _, height = self.main_tree.bbox(row, col)
+        padx = self.main_tree.column("#0")['width']  # don't need to overlap the icon
+        pady = height // 2
+        width = self.main_tree.column(col)['width']
+        self.rename_popup = RenamePopup(self.main_tree, row, self.app)
+        self.rename_popup.place(x=0 + padx, y=y + pady, anchor=W, width=width)
+
     def paste_thread_finished(self, item):
-        self.app.on_changed_dir(self.app.HISTORY.get_full_cwd())
+        self.app.on_refresh_dir()
 
     def render_right_click_menu(self, event):
+        self.right_click_coords = (event.x, event.y)
         widget = self.winfo_containing(event.x_root, event.y_root)
-        # Make sure they didn't click the headers
+        props = {}
+        # Clicked one of the rows
         if widget.identify_region(event.x, event.y) in ['tree', 'cell']:
             item = widget.identify_row(event.y)
             widget.selection_set([item])
-            props = {}
             # TODO:  Check for tags when implemented
             props['tag'] = False
             props['folder'] = True if self.main_tree.tag_has('folder', item) else False
-            self.build_right_click_menu(props, (event.x_root, event.y_root))
+        # Clicked on empty space in the tree
+        elif widget.identify_region(event.x, event.y) == 'nothing':
+            widget.selection_clear()
+        # Clicked a header
+        else:
+            return
+        self.build_right_click_menu(props, (event.x_root, event.y_root))

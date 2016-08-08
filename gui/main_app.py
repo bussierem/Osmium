@@ -58,6 +58,7 @@ class MainApp(Frame):
         self.render_toolbar()
         self.render_main_frame()
         self.pack()
+        self.master.wm_title(os.path.split(os.path.expanduser("~"))[1])
 
     def render_menu(self):
         self.menu = menu.TopMenu(self.master)
@@ -85,6 +86,7 @@ class MainApp(Frame):
         cwd += '\\'  # Needed for top-level paths like 'C:'
         self.file_explorer.load_dir(cwd)
         self.toolbar.set_dir(cwd)
+        self.master.wm_title(os.path.split(cwd)[1])
 
     def on_changed_dir(self, cwd):
         if os.path.isdir(cwd):

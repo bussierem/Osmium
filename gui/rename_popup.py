@@ -28,7 +28,6 @@ class RenamePopup(Entry):
     def rename_selection(self, event=None):
         new_name, ext = os.path.splitext(self.get())
         ext = ext or self.old_ext
-        # TODO:  Validate extension!
         if is_valid_filename(new_name):
             old_path = os.path.join(self.root_path, self.cur_name + self.old_ext)
             full_path = os.path.join(self.root_path, new_name + ext)

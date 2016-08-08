@@ -132,12 +132,12 @@ class FileExplorer(Frame):
                 size /= 1024.0
                 idx += 1
             size_str = "{0:.2f} {1}".format(size, size_t[idx])
-        # Type (ext) OR "Folder"
+        # Type "<ext> File" OR "Folder"
         type = item_type if item_type == "Folder" else "{} File".format(ext.upper())
         # Last Modified
         mod_time = time.localtime(path.getmtime(f))
         last_modified_12 = time.strftime("%m/%d/%y %I:%M:%S %p", mod_time)
-        last_modified_24 = time.strftime("%m/%d/%y %H:%M:%S", mod_time)
+        # last_modified_24 = time.strftime("%m/%d/%y %H:%M:%S", mod_time)
         data = (filename, size_str, type, last_modified_12)
         if type == "Folder":
             self.main_tree.insert('', 'end', iid=f, tags='folder', values=data)
@@ -180,7 +180,6 @@ class FileExplorer(Frame):
         self.b2_menu.post(x, y)
 
     def TODO(self, event=None):
-        # TODO:  Linking all commands to here until implemented
         print("TODO:  This event still needs to be completed/linked!")
 
     #                                           EVENTS

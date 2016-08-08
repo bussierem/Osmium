@@ -121,7 +121,7 @@ class BookmarkManager():
         bookmark = self.get_bookmark_by_attr('name', name)
         if bookmark.index == new_idx:
             return
-        # reorder bookmarks from 1 before changing_idx to new_idx
+        # reorder bookmarks between new location and current location
         elif bookmark.index > new_idx:
             for i in range(bookmark.index - 1, new_idx - 1, -1):
                 b = self.get_bookmark_by_attr('index', i)

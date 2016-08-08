@@ -22,14 +22,13 @@ class TreeSidebar(Frame):
         self.fill_treeview()
 
     def bind_events(self):
-        # Drag-and-Drop properties
+        # Drag-and-Drop flags and events
         self.CLICK_DOWN = False
         self.DRAG_START = False
         self.START_EVENT = None
         self.END_EVENT = None
         # Events
         self.tree.bind("<<TreeviewOpen>>", self.item_opened)
-        # self.tree.bind("<Button-1>", self.item_clicked)
         self.tree.bind("<Double-1>", self.item_double_clicked)
         self.tree.bind("<Button-1>", self.left_mouse_down)
         self.tree.bind("<ButtonRelease-1>", self.left_mouse_up)
@@ -117,7 +116,7 @@ class TreeSidebar(Frame):
         try:
             subdirs = os.listdir(parent)
         except PermissionError:
-            _ = messagebox.showerror('Invalid Permissions', 'You do not have sufficient privileges to access ' + parent)
+            messagebox.showerror('Invalid Permissions', 'You do not have sufficient privileges to access ' + parent)
             return
         for sub in subdirs:
             if os.path.isdir(os.path.join(parent, sub)):
@@ -214,7 +213,7 @@ class TreeSidebar(Frame):
         return "middle"
 
     def draw_line_above(self, row):
-        _, y, width, height = self.tree.bbox(row)
+        _, y, width, _ = self.tree.bbox(row)
         if hasattr(self, "line"):
             self.line.destroy()
         self.line = Frame(self.tree, height=2, width=width, bg="black")

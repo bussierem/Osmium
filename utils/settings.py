@@ -19,8 +19,3 @@ def get_settings_path():
     else:
         base_loc = os.path.join(os.path.expanduser('~'), '.osmium')
     return base_loc
-
-
-def export_settings():
-    # TODO: Implement this!
-    pass

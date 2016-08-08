@@ -98,8 +98,7 @@ class TopMenu(Frame):
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
 
     def TODO(self):
-        # TODO:  Linking all commands to here until implemented
-        pass
+        print("TODO:  This event still needs to be completed/linked!")
 
     def about_application(self):
         messagebox.showinfo(
@@ -110,34 +109,3 @@ class TopMenu(Frame):
 
     def close_window(self):
         self.master.quit()
-
-    """
-    Things for menu:
-        File
-            New Window          (Ctrl+N)
-            New Tab             (Ctrl+T)
-            -------------
-            Reopen Closed Tab   (Ctrl+Shift+T)
-            -------------
-            Close Tab           (Ctrl+W)
-            Close Window        (Alt+F4)
-        Edit
-            Select All          (Ctrl+A)
-            Cut                 (Ctrl+X)
-            Copy                (Ctrl+C)
-            Paste               (Ctrl+V)
-            -------------
-            Undo                (Ctrl+Z)
-            Redo                (Ctrl+Shift+Z)
-            Send to Recycle Bin (Delete)
-            Delete Permanently  (Shift+Delete)
-            -------------
-            Preferences         (Ctrl+,)
-        Tags
-            Tag Selected        (Ctrl+D)
-            Untag Selected      (Ctrl+Shift+D)
-            -------------
-            <List of User Tags>
-        Help
-            About
-    """

@@ -115,3 +115,14 @@ def get_invalid_chars():
         return r'/  :'
     else:
         return r'/'
+
+
+def open_file(filepath):
+    OS_TYPE = get_os_type()
+    if OS_TYPE == "Mac":
+        command = "open"
+    elif OS_TYPE == "Windows":
+        command = "start"
+    else:
+        command = "xdg-open"
+    os.system("{} {}".format(command, filepath))

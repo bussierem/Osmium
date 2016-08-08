@@ -2,11 +2,10 @@ import tkinter.ttk as ttk
 import win32api
 from collections import OrderedDict
 from tkinter import *
-from tkinter import messagebox
 
 from PIL import Image, ImageTk
 
-from utils.utilities import *
+from utils.bookmarks import *
 
 
 class TreeSidebar(Frame):
@@ -25,6 +24,9 @@ class TreeSidebar(Frame):
     def bind_events(self):
         self.tree.bind("<<TreeviewOpen>>", self.item_opened)
         self.tree.bind("<Button-1>", self.item_clicked)
+        self.tree.bind("<Double-1>", self.item_double_clicked)
+        self.tree.bind("<Control-F5>", self.refresh)
+        self.tree.bind("<Delete>", self.remove_bookmark)
 
     def render_treeview(self):
         self.tree = ttk.Treeview(self, show='tree', style='Sidebar.Treeview')
@@ -53,14 +55,24 @@ class TreeSidebar(Frame):
         except:
             return
         for sub in subdirs:
-            self.tree.insert(parent_dir, 'end', os.path.join(parent_dir, sub), text=sub)
+            try:
+                self.tree.insert(parent_dir, 'end', os.path.join(parent_dir, sub), text=sub)
+            except Exception:
+                pass
+        self.tree.item(parent_dir)
 
     def fill_treeview(self):
         icon = Image.open('./icons/folder.gif')
         self.folder = ImageTk.PhotoImage(icon)
-        for loc in ['Desktop', 'Documents', 'Downloads']:
-            path = os.path.join(os.path.expanduser('~'), loc)
-            self.tree.insert('', 'end', path, image=self.folder, text=loc)
+        icon = Image.open('./icons/file.gif')
+        self.file = ImageTk.PhotoImage(icon)
+        bm_man = BookmarkManager()
+        for bm in bm_man.bookmarks:
+            assert isinstance(bm, Bookmark)
+            if bm.type == "folder":
+                self.tree.insert('', 'end', bm.full_path, image=self.folder, text=bm.name, tags=('bookmark'))
+            elif bm.type == "file":
+                self.tree.insert('', 'end', bm.full_path, image=self.file, text=bm.name, tags=('bookmark'))
         drives = self.get_used_drive_letters(self.OS_TYPE)
         for key in drives.keys():
             if key == drives[key]:
@@ -85,6 +97,10 @@ class TreeSidebar(Frame):
             drive_lbls = {'/': 'Root', '/home/': 'Home'}
         return drive_lbls
 
+    def refresh(self, event=None):
+        self.tree.delete(*self.tree.get_children())
+        self.fill_treeview()
+
     #                              EVENT CALLBACKS
     # --------------------------------------------
     def item_opened(self, event):
@@ -101,8 +117,26 @@ class TreeSidebar(Frame):
 
     def item_clicked(self, event):
         cwd = self.tree.identify('item', event.x, event.y)
-        self.app.on_changed_dir(cwd)
+        if os.path.isdir(cwd):
+            self.app.on_changed_dir(cwd)
+
+    def item_double_clicked(self, event):
+        cwd = self.tree.identify('item', event.x, event.y)
+        if os.path.isfile(cwd):
+            open_file(cwd)
 
     def on_changed_dir(self, event):
         cwd = self.tree.selection()[0]
         self.app.on_changed_dir(cwd)
+
+    def remove_bookmark(self, event=None):
+        path = self.tree.selection()[0]
+        if 'bookmark' in self.tree.item(path)['tags']:
+            bm_man = BookmarkManager()
+            name = bm_man.get_bookmark_by_path(path)
+            if name is not None and messagebox.askyesno(
+                    "Confirm Bookmark Removal",
+                    "Are you sure you want to remove the bookmark \"{}\"".format(name)
+            ):
+                bm_man.remove_bookmark_by_path(path)
+                self.refresh()

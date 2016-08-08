@@ -24,12 +24,14 @@ These are the features that, when complete, will represent what I consider to be
   - ~~Icons for files/folders in main view~~
   - Right-click menu
     - ~~Cut/Copy/Paste~~
+        - Solve problems with Copy/Paste threading
+        - Why is Windows Explorer crashing when I do this?
     - ~~Delete (with confirm)~~
         - ~~This goes to Recycle Bin~~
-    - Rename (popup with name and ext options)
-    - Bookmark (Folders only!)
+    - ~~Rename (popup with name and ext options)~~
+    - ~~Bookmarking~~
     - ~~Tag (Not implemented in MVP)~~
-    - ~~Properties~~
+    - Properties
   - ~~Confirm popup on Shift+Delete~~
   - "Properties" popup window 
 

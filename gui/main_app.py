@@ -1,10 +1,10 @@
-import os
 from tkinter import *
 
 import gui.toolbar as tb
 import gui.top_menu as menu
 import gui.tree_sidebar as sidebar
 from gui.file_explorer import FileExplorer
+from utils.utilities import *
 
 LIGHT_TEAL = "#00e6e6"
 DARK_TEAL = "#009999"
@@ -91,16 +91,10 @@ class MainApp(Frame):
             self.HISTORY.new_dir(cwd)
             self.change_dir(cwd)
         elif os.path.isfile(cwd):
-            self.open_file(cwd)
+            open_file(cwd)
 
     def on_refresh_dir(self, item=None):
         self.change_dir(self.HISTORY.get_full_cwd())
 
-    def open_file(self, filepath):
-        if self.OS_TYPE == "Mac":
-            command = "open"
-        elif self.OS_TYPE == "Windows":
-            command = "start"
-        else:
-            command = "xdg-open"
-        os.system("{} {}".format(command, filepath))
+    def on_refresh_sidebar(self):
+        self.tree_sidebar.refresh()

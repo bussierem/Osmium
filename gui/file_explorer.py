@@ -8,8 +8,9 @@ import win32con
 from PIL import Image, ImageTk
 
 import handlers.file_operations as fileops
+from gui.bookmark_popup import BookmarkPopup
 from gui.rename_popup import RenamePopup
-from utils.utilities import *
+from utils.bookmarks import *
 
 
 class FileExplorer(Frame):
@@ -36,7 +37,7 @@ class FileExplorer(Frame):
         # Right-click functions
         self.main_tree.bind("<Control-d>", self.TODO)  # Tag
         self.main_tree.bind("<Control-Shift-d>", self.TODO)  # Un-tag
-        self.main_tree.bind("<Control-b>", self.TODO)  # Bookmark
+        self.main_tree.bind("<Control-b>", self.init_bookmark)  # Bookmark
         self.main_tree.bind("<Control-x>", self.on_cut)
         self.main_tree.bind("<Control-c>", self.on_copy)
         self.main_tree.bind("<Control-v>", self.on_paste)
@@ -148,7 +149,7 @@ class FileExplorer(Frame):
         menu_items_full = OrderedDict([
             ("Tag", self.TODO),
             ("Untag", self.TODO),
-            ("Bookmark", self.TODO),
+            ("Bookmark", self.init_bookmark),
             ("1", "SEP"),
             ("Cut", self.on_cut),
             ("Copy", self.on_copy),
@@ -171,6 +172,8 @@ class FileExplorer(Frame):
         for lbl, cmd in render_items.items():
             if cmd == "SEP":
                 self.b2_menu.add_separator()
+            elif cmd == self.TODO:
+                self.b2_menu.add_command(label=lbl, command=cmd, state=DISABLED)
             else:
                 self.b2_menu.add_command(label=lbl, command=cmd)
         x, y = coords
@@ -217,7 +220,7 @@ class FileExplorer(Frame):
             fileops.delete_file(sel, self.app.on_refresh_dir)
 
     def rename_target(self, event=None):
-        if event is not None:  # Called with <F2>
+        if event is not None:  # Called with keyboard
             if event.widget != self.main_tree:
                 return
             else:
@@ -232,6 +235,18 @@ class FileExplorer(Frame):
         width = self.main_tree.column(col)['width']
         self.rename_popup = RenamePopup(self.main_tree, row, self.app)
         self.rename_popup.place(x=0 + padx, y=y + pady, anchor=W, width=width)
+
+    def init_bookmark(self, event=None):
+        if event is not None and event.widget != self.main_tree:
+            return
+        sel = self.main_tree.selection()[0]
+        popup = BookmarkPopup(self, self.app, sel)
+        self.app.master.wait_window(popup)
+
+    def bookmark_target(self, path, name):
+        bm_man = BookmarkManager()
+        bm_man.add_bookmark(path, name)
+        self.app.on_refresh_sidebar()
 
     def paste_thread_finished(self, item):
         self.app.on_refresh_dir()

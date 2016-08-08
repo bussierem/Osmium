@@ -1,5 +1,4 @@
 import json
-import os
 from tkinter import messagebox
 
 from utils.settings import *
@@ -117,6 +116,29 @@ class BookmarkManager():
         }
         self.bookmarks.append(Bookmark(data))
         self.save_bookmarks()
+
+    def change_bookmark_index(self, name, new_idx):
+        bookmark = self.get_bookmark_by_attr('name', name)
+        if bookmark.index == new_idx:
+            return
+        # reorder bookmarks from 1 before changing_idx to new_idx
+        elif bookmark.index > new_idx:
+            for i in range(bookmark.index - 1, new_idx - 1, -1):
+                b = self.get_bookmark_by_attr('index', i)
+                b.index += 1
+        else:
+            for i in range(bookmark.index + 1, new_idx + 1):
+                b = self.get_bookmark_by_attr('index', i)
+                b.index -= 1
+        bookmark.index = new_idx
+        self.bookmarks.sort(key=lambda b: b.index)
+        self.save_bookmarks()
+
+    def get_bookmark_by_attr(self, attr, match):
+        found = [b for b in self.bookmarks if getattr(b, attr) == match]
+        if len(found) == 0:
+            return None
+        return found[0]
 
     def remove_bookmark_by_name(self, name):
         self.bookmarks = [b for b in self.bookmarks if b.name != name]

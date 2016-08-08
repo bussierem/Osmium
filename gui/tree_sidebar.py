@@ -22,9 +22,18 @@ class TreeSidebar(Frame):
         self.fill_treeview()
 
     def bind_events(self):
+        # Drag-and-Drop properties
+        self.CLICK_DOWN = False
+        self.DRAG_START = False
+        self.START_EVENT = None
+        self.END_EVENT = None
+        # Events
         self.tree.bind("<<TreeviewOpen>>", self.item_opened)
-        self.tree.bind("<Button-1>", self.item_clicked)
+        # self.tree.bind("<Button-1>", self.item_clicked)
         self.tree.bind("<Double-1>", self.item_double_clicked)
+        self.tree.bind("<Button-1>", self.left_mouse_down)
+        self.tree.bind("<ButtonRelease-1>", self.left_mouse_up)
+        self.tree.bind("<B1-Motion>", self.mouse_move)
         self.tree.bind("<Control-F5>", self.refresh)
         self.tree.bind("<Delete>", self.remove_bookmark)
 
@@ -140,3 +149,81 @@ class TreeSidebar(Frame):
             ):
                 bm_man.remove_bookmark_by_path(path)
                 self.refresh()
+
+    def left_mouse_down(self, event):
+        self.CLICK_DOWN = True
+        self.START_EVENT = event
+
+    def left_mouse_up(self, event):
+        self.CLICK_DOWN = False
+        self.END_EVENT = event
+        if not self.DRAG_START:
+            self.item_clicked(event)
+            return
+        if hasattr(self, "line"):
+            self.line.destroy()
+        bm_man = BookmarkManager()
+        start_row = self.tree.identify_row(self.START_EVENT.y)
+        end_row = self.tree.identify_row(self.END_EVENT.y)
+        if end_row not in [b.full_path for b in bm_man.bookmarks]:
+            return
+        loc = self.compare_mouse_loc_to_rows(event, end_row)
+        row_idx = [i for i, c in enumerate(self.tree.get_children()) if c == end_row][0]
+        bookmark = bm_man.get_bookmark_by_path(start_row)
+        if loc == "middle":
+            return
+        elif loc == "top":
+            new_idx = row_idx - (0 if row_idx == 0 else 1)
+        else:
+            new_idx = row_idx
+        bm_man.change_bookmark_index(bookmark, new_idx)
+        self.refresh()
+
+    def mouse_move(self, event):
+        if not self.CLICK_DOWN:
+            return
+        if self.DRAG_START:
+            self.check_if_draw(event)
+        elif event.x > self.START_EVENT.x + 3 or event.y > self.START_EVENT.y + 3:
+            self.DRAG_START = True
+            self.check_if_draw(event)
+
+    def check_if_draw(self, event):
+        if event.y <= 0:
+            if hasattr(self, "line"):
+                self.line.destroy()
+            return
+        bm_man = BookmarkManager()
+        row = self.tree.identify_row(event.y)
+        if row not in [b.full_path for b in bm_man.bookmarks]:
+            if hasattr(self, "line"):
+                self.line.destroy()
+            return
+        loc = self.compare_mouse_loc_to_rows(event, row)
+        if loc == "top":
+            self.draw_line_above(row)
+        elif loc == "bottom":
+            self.draw_line_below(row)
+
+    def compare_mouse_loc_to_rows(self, e, row):
+        x, y, rw, rh = self.tree.bbox(row)
+        if e.y <= (y + (rh / 3)):
+            return "top"
+        elif e.y >= ((y + rh) - (rh / 3)):
+            return "bottom"
+        return "middle"
+
+    def draw_line_above(self, row):
+        _, y, width, height = self.tree.bbox(row)
+        if hasattr(self, "line"):
+            self.line.destroy()
+        self.line = Frame(self.tree, height=2, width=width, bg="black")
+        self.line.place(x=width / 4, y=y, anchor=W, width=width / 2)
+
+    def draw_line_below(self, row):
+        _, y, width, height = self.tree.bbox(row)
+        pady = height
+        if hasattr(self, "line"):
+            self.line.destroy()
+        self.line = Frame(self.tree, height=2, width=width, bg="black")
+        self.line.place(x=width / 4, y=y + pady, anchor=W, width=width / 2)

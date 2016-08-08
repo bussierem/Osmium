@@ -11,6 +11,7 @@ The current plan is to create the MVP (Minimum Viable Product) to replicate the 
 ### Minimum Viable Product Features
 These are the features that, when complete, will represent what I consider to be a "barebones file explorer".  This feature list will be sporadic in nature and varying in specificity - just things I think of as I code.
   - ~~Basic folder/file navigation~~
+    - Order items by folder (alphabetically), then by item (alphabetically)
   - ~~File/etc Menu~~
     - **NOTE:** Most of the menu options will not be implemented in the MVP
   - ~~"URL" path navigation bar~~
@@ -25,11 +26,12 @@ These are the features that, when complete, will represent what I consider to be
   - Right-click menu
     - ~~Cut/Copy/Paste~~
         - Solve problems with Copy/Paste threading
-        - Why is Windows Explorer crashing when I do this?
+        - Why is Windows Explorer crashing sometimes when I do this?
     - ~~Delete (with confirm)~~
         - ~~This goes to Recycle Bin~~
     - ~~Rename (popup with name and ext options)~~
     - ~~Bookmarking~~
+        - ~~Drag-and-drop reordering for Bookmarks~~
     - ~~Tag (Not implemented in MVP)~~
     - Properties
   - ~~Confirm popup on Shift+Delete~~

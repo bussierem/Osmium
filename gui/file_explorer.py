@@ -8,8 +8,9 @@ import win32con
 from PIL import Image, ImageTk
 
 import handlers.file_operations as fileops
-from gui.bookmark_popup import BookmarkPopup
-from gui.rename_popup import RenamePopup
+from gui.popups.bookmark_popup import BookmarkPopup
+from gui.popups.properties_popup import PropertiesPopup
+from gui.popups.rename_popup import RenamePopup
 from utils.bookmarks import *
 
 
@@ -172,7 +173,7 @@ class FileExplorer(Frame):
             ("Delete", self.recycle_target),
             ("Rename", self.rename_target),
             ("3", "SEP"),
-            ("Properties", self.TODO)
+            ("Properties", self.render_target_properties)
         ])
         menu_items_no_file = OrderedDict([
             ("Paste", self.on_paste),
@@ -260,6 +261,13 @@ class FileExplorer(Frame):
         bm_man = BookmarkManager()
         bm_man.add_bookmark(path, name)
         self.app.on_refresh_sidebar()
+
+    def render_target_properties(self, event=None):
+        if event is not None and event.widget != self.main_tree:
+            return
+        sel = self.main_tree.selection()[0]
+        pop = PropertiesPopup(self, self.app, sel)
+        self.app.master.wait_window(pop)
 
     def paste_thread_finished(self, item):
         self.app.on_refresh_dir()

@@ -33,9 +33,18 @@ These are the features that, when complete, will represent what I consider to be
     - ~~Bookmarking~~
         - ~~Drag-and-drop reordering for Bookmarks~~
     - ~~Tag (Not implemented in MVP)~~
-    - Properties
+    - ~~Properties~~
   - ~~Confirm popup on Shift+Delete~~
-  - "Properties" popup window 
+  - "Properties" popup window
+    - Type~~
+    - Size
+        - Handle recursive folder sizes
+            - Create thread to calculate, query every second and update window
+    - ~~Contents (folders)~~
+    - ~~Opens With (files)~~
+    - ~~Location~~
+    - ~~Creation Date~~
+    - ~~Last Modified Date~~
 
 ---
 

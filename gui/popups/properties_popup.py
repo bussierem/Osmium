@@ -1,6 +1,5 @@
+from threading import Thread, Timer
 from tkinter import *
-
-import win32com.client as com
 
 from utils.utilities import *
 
@@ -75,23 +74,24 @@ class PropertiesPopup(Toplevel):
             self.props_frame, font=("Source Code Pro", "10", "bold"), text="Size: "
         )
         self.size_lbl.grid(row=3, column=0, sticky=E)
-        size_str = self.get_size()
         self.size_value = Label(
-            self.props_frame, font=("Source Code Pro", "10"), text=size_str
+            self.props_frame, font=("Source Code Pro", "10"), foreground="gray",
+            text="0"
         )
         self.size_value.grid(row=3, column=1, columnspan=2, sticky=W)
+        self.get_size()
         # Contents (folder only)
         if self.is_folder:
             self.contents_lbl = Label(
                 self.props_frame, font=("Source Code Pro", "10", "bold"), text="Contents: "
             )
             self.contents_lbl.grid(row=4, column=0, sticky=E)
-            folders, files = self.get_folder_contents()
-            contents = "{} folders, {} files".format(folders, files)
             self.contents_value = Label(
-                self.props_frame, font=("Source Code Pro", "10"), text=contents
+                self.props_frame, font=("Source Code Pro", "10"), foreground="gray",
+                text="0 folders, 0 files"
             )
             self.contents_value.grid(row=4, column=1, columnspan=2, sticky=W)
+            self.get_folder_contents()
         # Created Date
         self.created_lbl = Label(
             self.props_frame, font=("Source Code Pro", "10", "bold"), text="Created: "
@@ -116,29 +116,81 @@ class PropertiesPopup(Toplevel):
         self.modified_value.grid(row=6, column=1, columnspan=2, sticky=W)
 
     def get_size(self):
-        size = 0
-        if self.is_folder:
-            fso = com.Dispatch("Scripting.FileSystemObject")
-            try:
-                # TODO:  Stick this into a thread and query it every 1s
-                folder = fso.GetFolder(self.path)
-                size = folder.Size
-            except:
-                pass
-        else:
-            size = os.path.getsize(self.path)
+        self.sc = SizeChecker(self.path)
+        size_thread = Thread(target=self.sc.get_size, args=())
+        size_thread.daemon = True
+        size_thread.start()
+        self.update_size()
+
+    def update_size(self):
+        if not hasattr(self, "sc"):
+            return
+        if self.sc is None:
+            return
+        done, size = self.sc.get_progress()
         idx = 0
         while size >= 1024.0:
             size /= 1024.0
             idx += 1
         size_t = ["B", "KB", "MB", "GB", "TB"]
         size_str = "{0:.2f} {1}".format(size, size_t[idx])
-        return size_str
+        self.size_value.configure(text=size_str)
+        if not done:
+            Timer(1, self.update_size).start()
+        else:
+            self.size_value.configure(foreground="black")
 
     def get_folder_contents(self):
-        folders = 0
-        files = 0
+        self.cc = ContentsChecker(self.path)
+        contents_thread = Thread(target=self.cc.get_contents, args=())
+        contents_thread.daemon = True
+        contents_thread.start()
+        self.update_contents()
+
+    def update_contents(self):
+        if not hasattr(self, "cc"):
+            return
+        if self.cc is None:
+            return
+        done, folders, files = self.cc.get_progress()
+        contents = "{} folders, {} files".format(folders, files)
+        self.contents_value.configure(text=contents)
+        if not done:
+            Timer(1, self.update_contents).start()
+        else:
+            self.contents_value.configure(foreground="black")
+
+
+class ContentsChecker(Thread):
+    def __init__(self, path, *args, **kwargs):
+        self.path = path
+        self.folders = 0
+        self.files = 0
+        self.done = False
+        Thread.__init__(self)
+
+    def get_contents(self):
         for item in os.walk(self.path):
-            folders += len(item[1])
-            files += len(item[2])
-        return folders, files
+            self.folders += len(item[1])
+            self.files += len(item[2])
+        self.done = True
+
+    def get_progress(self):
+        return self.done, self.folders, self.files
+
+
+class SizeChecker(Thread):
+    def __init__(self, path, *args, **kwargs):
+        self.cur_size = 0
+        self.path = path
+        self.done = False
+        Thread.__init__(self)
+
+    def get_size(self):
+        for item in os.walk(self.path):
+            for file in item[2]:
+                self.cur_size += os.path.getsize(os.path.join(item[0], file))
+        self.done = True
+
+    def get_progress(self):
+        return self.done, self.cur_size

@@ -37,9 +37,10 @@ These are the features that, when complete, will represent what I consider to be
   - ~~Confirm popup on Shift+Delete~~
   - "Properties" popup window
     - ~~Type~~
-    - Size
-        - Handle recursive folder sizes
-            - Create thread to calculate, query every second and update window
+    - ~~Size~~
+        - ~~Handle recursive folder sizes~~
+            - ~~Create thread to calculate, query every second and update window~~
+        - **Thanks to Supermaik for suggestion on text coloring for dynamic updated properties!**
     - ~~Contents (folders)~~
     - ~~Opens With (files)~~
     - ~~Location~~

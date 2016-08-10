@@ -92,7 +92,8 @@ class FileExplorer(Frame):
 
     def load_dir(self, cwd):
         self.main_tree.delete(*self.main_tree.get_children())
-        for item in sorted(os.listdir(cwd)):
+        sorted_list = self.sort_by_folder_first(cwd)
+        for item in sorted_list:
             path = os.path.join(cwd, item)
             try:
                 attribute = win32api.GetFileAttributes(path)
@@ -101,6 +102,19 @@ class FileExplorer(Frame):
             except:
                 # TODO: Need to figure out stupid permission errors
                 self.display_cwd_item(path)
+
+    def sort_by_folder_first(self, cwd):
+        folders = []
+        files = []
+        for item in sorted(os.listdir(cwd)):
+            path = os.path.join(cwd, item)
+            if os.path.isdir(path):
+                folders.append(item)
+            else:
+                files.append(item)
+        all_items = sorted(folders)
+        all_items.extend(sorted(files))
+        return all_items
 
     def _column_sort(self, col, descending=False):
         # grab values to sort as a list of tuples (column value, column id)

@@ -52,6 +52,8 @@ These are features that I will only start looking at or considering after I have
     - Create "Settings" button in Bookmarks Bar
   - User created bookmarks
     - Chrome-style "Bookmarks Bar"
+  - Settings
+    - Allow "sort by filename", not folders first
   - Indexing/Caching for better Search performance
   - Advanced Searching
     - Search contents of files

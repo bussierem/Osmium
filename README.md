@@ -36,7 +36,7 @@ These are the features that, when complete, will represent what I consider to be
     - ~~Properties~~
   - ~~Confirm popup on Shift+Delete~~
   - "Properties" popup window
-    - Type~~
+    - ~~Type~~
     - Size
         - Handle recursive folder sizes
             - Create thread to calculate, query every second and update window

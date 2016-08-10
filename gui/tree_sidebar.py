@@ -125,6 +125,20 @@ class TreeSidebar(Frame):
 
     def item_clicked(self, event):
         cwd = self.tree.identify('item', event.x, event.y)
+        item = self.tree.item(cwd)
+        if 'bookmark' in item['tags']:
+            if not os.path.exists(cwd):
+                delete = messagebox.askyesno(
+                    "Bookmark Invalid",
+                    "This bookmarks location\n"
+                    "{}\nno longer exists.\n"
+                    "Would you like to remove this bookmark?".format(cwd)
+                )
+                if delete:
+                    bm_man = BookmarkManager()
+                    bm_man.remove_bookmark_by_path(cwd)
+                    self.refresh()
+                return
         if os.path.isdir(cwd):
             self.app.on_changed_dir(cwd)
 
@@ -144,7 +158,7 @@ class TreeSidebar(Frame):
             name = bm_man.get_bookmark_by_path(path)
             if name is not None and messagebox.askyesno(
                     "Confirm Bookmark Removal",
-                    "Are you sure you want to remove the bookmark \"{}\"".format(name)
+                    "Are you sure you want to remove the bookmark \"{}\"?".format(name)
             ):
                 bm_man.remove_bookmark_by_path(path)
                 self.refresh()

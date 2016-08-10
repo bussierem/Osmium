@@ -45,6 +45,7 @@ These are features that I will only start looking at or considering after I have
     - Right-Click/Menu functionality
   - Tabbed Navigation
     - Chrome-style shortcut keys for navigating tabs
+        - Don't forget Ctrl+# to navigate to the #th Tab!
   - Determine and add some right-click menu for the column headers
   - Remove File Menu
     - Replace with F1 "Help" showing keyboard shortcuts

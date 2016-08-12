@@ -1,3 +1,4 @@
+import threading
 from threading import Thread, Timer
 from tkinter import *
 
@@ -22,7 +23,17 @@ class PropertiesPopup(Toplevel):
         self.render_base_frame()
         self.render_properties()
         self.bind("<Escape>", lambda *ignore: self.destroy())
-        self.bind("<Return>", lambda *ignore: self.destroy())
+
+    def destroy(self):
+        if hasattr(self, "sc") and self.sc is not None and not self.sc.stopped():
+            self.sc.stop()
+            while not self.sc.get_progress()[0]:
+                time.sleep(0.1)
+        if hasattr(self, "cc") and self.cc is not None and not self.cc.stopped():
+            self.cc.stop()
+            while not self.cc.get_progress()[0]:
+                time.sleep(0.1)
+        super().destroy()
 
     def render_base_frame(self):
         self.form_frame = Frame(self, padx=10)
@@ -134,10 +145,11 @@ class PropertiesPopup(Toplevel):
             idx += 1
         size_t = ["B", "KB", "MB", "GB", "TB"]
         size_str = "{0:.2f} {1}".format(size, size_t[idx])
-        self.size_value.configure(text=size_str)
+        if not self.sc.stopped():
+            self.size_value.configure(text=size_str)
         if not done:
             Timer(1, self.update_size).start()
-        else:
+        elif not self.sc.stopped():
             self.size_value.configure(foreground="black")
 
     def get_folder_contents(self):
@@ -154,10 +166,11 @@ class PropertiesPopup(Toplevel):
             return
         done, folders, files = self.cc.get_progress()
         contents = "{} folders, {} files".format(folders, files)
-        self.contents_value.configure(text=contents)
+        if not self.sc.stopped():
+            self.contents_value.configure(text=contents)
         if not done:
             Timer(1, self.update_contents).start()
-        else:
+        elif not self.cc.stopped():
             self.contents_value.configure(foreground="black")
 
 
@@ -168,9 +181,19 @@ class ContentsChecker(Thread):
         self.files = 0
         self.done = False
         Thread.__init__(self)
+        self._stop = threading.Event()
+
+    def stop(self):
+        self._stop.set()
+
+    def stopped(self):
+        return self._stop.is_set()
 
     def get_contents(self):
         for item in os.walk(self.path):
+            if self.stopped():
+                self.done = True
+                return
             self.folders += len(item[1])
             self.files += len(item[2])
         self.done = True
@@ -185,10 +208,20 @@ class SizeChecker(Thread):
         self.path = path
         self.done = False
         Thread.__init__(self)
+        self._stop = threading.Event()
+
+    def stop(self):
+        self._stop.set()
+
+    def stopped(self):
+        return self._stop.is_set()
 
     def get_size(self):
         for item in os.walk(self.path):
             for file in item[2]:
+                if self.stopped():
+                    self.done = True
+                    return
                 self.cur_size += os.path.getsize(os.path.join(item[0], file))
         self.done = True
 

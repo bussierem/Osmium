@@ -21,10 +21,12 @@ These are the features that, when complete, will represent what I consider to be
     - ~~"Up One Level"~~
   - ~~Open files with default OS app~~
   - ~~Tree sidebar navigation~~
-  - Search Bar
+  - ~~Search Bar~~
+    - Search will leave processes hanging when you close the app at the wrong time.  NEED TO FIX
   - ~~Icons for files/folders in main view~~
   - Right-click menu
     - ~~Cut/Copy/Paste~~
+        - still need a Dialog window showing copy/paste progress!
         - Solve problems with Copy/Paste threading
         - Why is Windows Explorer crashing sometimes when I do this?
     - ~~Delete (with confirm)~~

@@ -60,6 +60,13 @@ class MainApp(Frame):
         self.pack()
         self.master.wm_title(os.path.split(os.path.expanduser("~"))[1])
 
+    def destroy(self):
+        if hasattr(self.toolbar, "search_thread") and self.toolbar.search_thread is not None:
+            self.toolbar.search_thread.stop()
+            self.toolbar.search_daemon.join()
+            self.toolbar.destroy()
+        super().destroy()
+
     def render_menu(self):
         self.menu = menu.TopMenu(self.master)
 
@@ -68,7 +75,7 @@ class MainApp(Frame):
         self.toolbar = tb.Toolbar(self.master, self)
 
     def render_main_frame(self):
-        self.main_frame = Frame(self.master, background="red")
+        self.main_frame = Frame(self.master)
         self.render_tree_sidebar()
         self.render_file_grid()
         self.main_frame.pack(side=TOP, fill=BOTH, expand=True)
@@ -89,6 +96,8 @@ class MainApp(Frame):
         self.master.wm_title(os.path.split(cwd)[1])
 
     def on_changed_dir(self, cwd):
+        if hasattr(self.toolbar, "search_thread") and self.toolbar.search_thread is not None:
+            self.toolbar.search_thread.stop()
         if os.path.isdir(cwd):
             self.HISTORY.new_dir(cwd)
             self.change_dir(cwd)

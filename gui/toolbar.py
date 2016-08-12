@@ -1,4 +1,7 @@
 import os
+import threading
+import time
+from threading import Thread, Timer
 from tkinter import *
 
 
@@ -14,6 +17,20 @@ class Toolbar(Frame):
         self.render_searchbar()
         self.bind_events()
         self.pack(side=TOP, fill=X)
+
+    def destroy(self):
+        self.search_daemon.join()
+        self.search_thread.stop()
+        while not self.search_thread.get_progress()[0]:
+            time.sleep(0.1)
+        if hasattr(self, "timer") and self.timer is not None:
+            print("timer exists")
+            assert isinstance(self.timer, Timer)
+            print(self.timer.is_alive())
+            if self.timer.is_alive():
+                self.timer.cancel()
+        print("toolbar stopping")
+        super().destroy()
 
     def bind_events(self):
         self.nav_bar.bind('<Return>', self.on_changed_dir)
@@ -75,10 +92,35 @@ class Toolbar(Frame):
     #                                           EVENTS
     # ------------------------------------------------
     def on_search_click(self, event):
-        self.search_bar.delete(0, 'end')
+        if "Search {}".format(self.app.HISTORY.get_current_dir()) == self.search_bar.get():
+            self.search_bar.delete(0, 'end')
 
     def on_enter(self, event):
-        print("TODO:  Implement 'Search' method")
+        search_term = self.search_bar.get()
+        self.app.file_explorer.main_tree.delete(
+            *self.app.file_explorer.main_tree.get_children()
+        )
+        if hasattr(self, "search_thread") and self.search_thread is not None:
+            if not self.search_thread.stopped():
+                self.search_thread.stop()
+                while not self.search_thread.get_progress()[0]:
+                    time.sleep(0.1)
+        self.search_thread = SearchThread(self, self.app.HISTORY.cwd, search_term)
+        self.search_daemon = Thread(target=self.search_thread.find_results, args=())
+        self.search_daemon.daemon = True
+        self.search_daemon.start()
+        self.update_search()
+
+    def update_search(self):
+        if not hasattr(self, "search_thread"):
+            return
+        if self.search_thread is None:
+            return
+        done, found = self.search_thread.get_progress()
+        if not self.search_thread.stopped():
+            self.app.file_explorer.load_search_results(found)
+        if not done:
+            self.timer = Timer(1, self.update_search).start()
 
     def on_changed_dir(self, event):
         cwd = self.current_dir.get()
@@ -96,3 +138,37 @@ class Toolbar(Frame):
             up_one = os.path.sep.join(cur_path[:-1])
             self.app.HISTORY.new_dir(up_one)
             self.app.change_dir(up_one)
+
+
+class SearchThread(Thread):
+    def __init__(self, parent, path, search_term, *args, **kwargs):
+        self.parent = parent
+        self.found = []
+        self.path = path
+        self.search = search_term
+        self.done = False
+        Thread.__init__(self)
+        self._stop = threading.Event()
+
+    def stop(self):
+        self._stop.set()
+
+    def stopped(self):
+        return self._stop.is_set()
+
+    def find_results(self):
+        for item in os.walk(self.path):
+            base = item[0]
+            if self.stopped():
+                self.done = True
+                return
+            for folder in item[1]:
+                if self.search in folder:
+                    self.found.append(os.path.join(base, folder))
+            for file in item[2]:
+                if self.search in file:
+                    self.found.append(os.path.join(base, file))
+        self.done = True
+
+    def get_progress(self):
+        return self.done, self.found

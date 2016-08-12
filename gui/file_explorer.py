@@ -104,6 +104,20 @@ class FileExplorer(Frame):
                 # TODO: Need to figure out stupid permission errors
                 self.display_cwd_item(path)
 
+    def load_search_results(self, found):
+        # TODO: ONLY UPDATE THE PART OF THE RESULTS THAT HASN'T BEEN DISPLAYED YET
+        current_results = self.main_tree.get_children()
+        new_items = [f for f in found if f not in current_results]
+        new_items = sorted(new_items)
+        for idx, item in enumerate(new_items):
+            try:
+                attribute = win32api.GetFileAttributes(item)
+                if not (attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)):
+                    self.display_cwd_item(item)
+            except:
+                # TODO: Need to figure out stupid permission errors
+                self.display_cwd_item(item)
+
     def sort_by_folder_first(self, cwd):
         folders = []
         files = []

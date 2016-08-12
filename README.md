@@ -35,7 +35,7 @@ These are the features that, when complete, will represent what I consider to be
     - ~~Tag (Not implemented in MVP)~~
     - ~~Properties~~
   - ~~Confirm popup on Shift+Delete~~
-  - "Properties" popup window
+  - ~~"Properties" popup window~~
     - ~~Type~~
     - ~~Size~~
         - ~~Handle recursive folder sizes~~
@@ -46,6 +46,7 @@ These are the features that, when complete, will represent what I consider to be
     - ~~Location~~
     - ~~Creation Date~~
     - ~~Last Modified Date~~
+  - Extensive Debug Logging for Beta Testing
 
 ---
 

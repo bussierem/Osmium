@@ -19,17 +19,14 @@ class Toolbar(Frame):
         self.pack(side=TOP, fill=X)
 
     def destroy(self):
-        self.search_daemon.join()
-        self.search_thread.stop()
-        while not self.search_thread.get_progress()[0]:
-            time.sleep(0.1)
+        if hasattr(self, "search_thread"):
+            self.search_thread.stop()
+            while not self.search_thread.get_progress()[0]:
+                time.sleep(0.1)
         if hasattr(self, "timer") and self.timer is not None:
-            print("timer exists")
             assert isinstance(self.timer, Timer)
-            print(self.timer.is_alive())
             if self.timer.is_alive():
                 self.timer.cancel()
-        print("toolbar stopping")
         super().destroy()
 
     def bind_events(self):

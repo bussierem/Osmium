@@ -8,7 +8,39 @@ The current plan is to create the MVP (Minimum Viable Product) to replicate the 
 
 ---
 
-### Minimum Viable Product Features
+### Missing Features Before Beta Testing
+  - File Transfer Problems:
+    - Something causes Windows Explorer to crash sometimes when doing long copy/pasts
+    - Need a "progress tacker" window to popup on file transfers
+  - Search Problems:
+    - If closing the app mid-search, the app leaves a thread running for some reason
+    - Options for displaying results:
+        - Dynamic updating of the file_explorer (CURRENT)
+            - PRO:  Smooth display of results
+            - CON:  Threading causing issues
+        - Popup progress window then display results all at once
+            - PRO:  Probably won't cause the same threading issues
+            - CON:  User might continue browsing then be interrupted by results
+        - Open results in new window/tab
+            - PRO:  Won't cause threading issues
+            - PRO:  Doesn't interrupt user
+            - CON:  Some people want results in same view
+            - CON:  "New Tab" would require implementing tabs for beta
+  - Drag-n-Drop
+    - Moving files/folders in the file_explorer view
+        - Should highlight the hovered row
+    - When file/folder is dropped on a folder, it should "move" the target to the destination
+  - Multi-Window
+    - Drag-n-Drop between windows
+    - All windows should update when the other(s) do something
+        - "Update" method that runs on a timer
+  - Extensive Debug Logging for Beta Testing
+    - Option to disable logging actual file/folder paths (for privacy)
+
+---
+
+### Completed Features
+
 These are the features that, when complete, will represent what I consider to be a "barebones file explorer".  This feature list will be sporadic in nature and varying in specificity - just things I think of as I code.
   - ~~Basic folder/file navigation~~
     - ~~Order items by folder (alphabetically), then by item (alphabetically)~~
@@ -22,13 +54,9 @@ These are the features that, when complete, will represent what I consider to be
   - ~~Open files with default OS app~~
   - ~~Tree sidebar navigation~~
   - ~~Search Bar~~
-    - Search will leave processes hanging when you close the app at the wrong time.  NEED TO FIX
   - ~~Icons for files/folders in main view~~
-  - Right-click menu
+  - ~~Right-click menu~~
     - ~~Cut/Copy/Paste~~
-        - still need a Dialog window showing copy/paste progress!
-        - Solve problems with Copy/Paste threading
-        - Why is Windows Explorer crashing sometimes when I do this?
     - ~~Delete (with confirm)~~
         - ~~This goes to Recycle Bin~~
     - ~~Rename (popup with name and ext options)~~
@@ -48,7 +76,6 @@ These are the features that, when complete, will represent what I consider to be
     - ~~Location~~
     - ~~Creation Date~~
     - ~~Last Modified Date~~
-  - Extensive Debug Logging for Beta Testing
 
 ---
 
@@ -59,6 +86,10 @@ These are features that I will only start looking at or considering after I have
   - Tabbed Navigation
     - Chrome-style shortcut keys for navigating tabs
         - Don't forget Ctrl+# to navigate to the #th Tab!
+    - Reorder Tabs
+    - Drag-n-Drop files over tabs to switch to that tab
+    - Pull out tabs as new windows
+    - Drag Windows into others to make them into tabs in the destination window
   - Determine and add some right-click menu for the column headers
   - Remove File Menu
     - Replace with F1 "Help" showing keyboard shortcuts

@@ -3,8 +3,9 @@ from tkinter import messagebox
 
 
 class TopMenu(Frame):
-    def __init__(self, master):
+    def __init__(self, master, parent_win):
         self.master = master
+        self.parent_win = parent_win
         Frame.__init__(self, master)
         self.menu_bar = Menu(self.master, tearoff=0)
         self.master.config(menu=self.menu_bar)
@@ -16,8 +17,8 @@ class TopMenu(Frame):
     def render_file_menu(self):
         self.file_menu = Menu(self.menu_bar, tearoff=0)
 
-        self.file_menu.add_command(label="New Window", command=self.TODO, accelerator="Ctrl+N")
-        self.bind("<Control-n>", self.TODO)
+        self.file_menu.add_command(label="New Window", command=self.open_new_window, accelerator="Ctrl+N")
+        self.bind("<Control-n>", self.open_new_window)
         self.file_menu.add_command(label="New Tab", command=self.TODO, accelerator="Ctrl+T")
         self.bind("<Control-t>", self.TODO)
 
@@ -51,8 +52,6 @@ class TopMenu(Frame):
         self.bind("<Control-c>", self.TODO)
         self.edit_menu.add_command(label="Paste", command=self.TODO, accelerator="Ctrl+V")
         self.bind("<Control-v>", self.TODO)
-        self.edit_menu.add_command(label="Rename", command=self.TODO, accelerator="F2")
-        self.bind("<F2>", self.TODO)
 
         self.edit_menu.add_separator()
 
@@ -107,5 +106,8 @@ class TopMenu(Frame):
             "The source code is located at: http://github.com/bussierem/Osmium\n"
             "Copyright (c) 2016 Max Bussiere")
 
+    def open_new_window(self):
+        self.parent_win.manager.open_new_window()
+
     def close_window(self):
-        self.master.quit()
+        self.parent_win.close_window()

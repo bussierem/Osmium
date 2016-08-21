@@ -1,9 +1,9 @@
 from tkinter import *
 
-import gui.toolbar as tb
-import gui.top_menu as menu
-import gui.tree_sidebar as sidebar
-from gui.file_explorer import FileExplorer
+import gui.widgets.toolbar as tb
+import gui.widgets.top_menu as menu
+import gui.widgets.tree_sidebar as sidebar
+from gui.widgets.file_explorer import FileExplorer
 from utils.utilities import *
 
 LIGHT_TEAL = "#00e6e6"
@@ -42,23 +42,27 @@ class History:
         self.update_cwd()
 
 
-class MainApp(Frame):
-    def __init__(self, master=None):
+class Window(Frame):
+    def __init__(self, win_id, manager, master=None):
+        self.id = win_id
         self.master = master
+        self.manager = manager
         Frame.__init__(self, master, background=BACKGROUND)
-        if sys.platform.startswith('darwin'):
-            self.OS_TYPE = "Mac"
-        elif os.name == "nt":
-            self.OS_TYPE = "Windows"
-        else:
-            self.OS_TYPE = "Unix"
         self.HISTORY = History()
-        self.CUT = False
         self.render_menu()
         self.render_toolbar()
         self.render_main_frame()
         self.pack()
-        self.master.wm_title(os.path.split(os.path.expanduser("~"))[1])
+        self.master.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.master.bind("<FocusIn>", lambda _: self.bring_to_front())
+        self.bind("<Control-n>", lambda _: self.manager.open_new_window())
+
+    def close_window(self):
+        self.manager.close_window(self.id)
+
+    def bring_to_front(self):
+        self.manager.to_front(self.id)
+        self.master.lift()
 
     def destroy(self):
         if hasattr(self.toolbar, "search_thread") and self.toolbar.search_thread is not None:
@@ -68,7 +72,7 @@ class MainApp(Frame):
         super().destroy()
 
     def render_menu(self):
-        self.menu = menu.TopMenu(self.master)
+        self.menu = menu.TopMenu(self.master, self)
 
     def render_toolbar(self):
         self.master.update()

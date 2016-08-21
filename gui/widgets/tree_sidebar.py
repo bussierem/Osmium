@@ -9,9 +9,9 @@ from utils.bookmarks import *
 
 
 class TreeSidebar(Frame):
-    def __init__(self, master, app):
+    def __init__(self, master, parent_win):
         self.master = master
-        self.app = app
+        self.parent_win = parent_win
         Frame.__init__(self, master)
         self.OS_TYPE = get_os_type()
         style = ttk.Style(self.master)
@@ -140,7 +140,7 @@ class TreeSidebar(Frame):
                     self.refresh()
                 return
         if os.path.isdir(cwd):
-            self.app.on_changed_dir(cwd)
+            self.parent_win.on_changed_dir(cwd)
 
     def item_double_clicked(self, event):
         cwd = self.tree.identify('item', event.x, event.y)
@@ -149,7 +149,7 @@ class TreeSidebar(Frame):
 
     def on_changed_dir(self, event):
         cwd = self.tree.selection()[0]
-        self.app.on_changed_dir(cwd)
+        self.parent_win.on_changed_dir(cwd)
 
     def remove_bookmark(self, event=None):
         path = self.tree.selection()[0]

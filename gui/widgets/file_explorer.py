@@ -15,9 +15,9 @@ from utils.bookmarks import *
 
 
 class FileExplorer(Frame):
-    def __init__(self, master, app):
+    def __init__(self, master, parent_win):
         self.master = master
-        self.app = app
+        self.parent_win = parent_win
         self.right_click_coords = (0, 0)
         Frame.__init__(self, master)
         self.OS_TYPE = get_os_type()
@@ -34,7 +34,7 @@ class FileExplorer(Frame):
         self.main_tree.bind('<Double-1>', self.on_changed_dir)
         self.main_tree.bind('<Button-3>', self.render_right_click_menu)
         # Refresh
-        self.main_tree.bind('<F5>', self.app.on_refresh_dir)
+        self.main_tree.bind('<F5>', self.parent_win.on_refresh_dir)
         # Right-click functions
         self.main_tree.bind("<Control-d>", self.TODO)  # Tag
         self.main_tree.bind("<Control-Shift-d>", self.TODO)  # Un-tag
@@ -215,7 +215,7 @@ class FileExplorer(Frame):
     # ------------------------------------------------
     def on_changed_dir(self, event):
         cwd = self.main_tree.selection()[0]
-        self.app.on_changed_dir(cwd)
+        self.parent_win.on_changed_dir(cwd)
 
     def on_cut(self, event=None):
         item = self.main_tree.selection()[0]
@@ -229,23 +229,23 @@ class FileExplorer(Frame):
 
     def on_paste(self, event=None):
         if event is None:
-            dest = self.app.HISTORY.get_current_dir()
+            dest = self.parent_win.HISTORY.get_current_dir()
         else:
             sel = self.main_tree.selection()
-            dest = sel[0] if sel else self.app.HISTORY.get_full_cwd()
+            dest = sel[0] if sel else self.parent_win.HISTORY.get_full_cwd()
             if os.path.isfile(dest):
-                dest = self.app.HISTORY.get_full_cwd()
+                dest = self.parent_win.HISTORY.get_full_cwd()
         fileops.paste_file(dest, self.paste_thread_finished)
 
     def recycle_target(self, event=None):
         if event.widget == self.main_tree:
             sel = self.main_tree.selection()[0]
-            fileops.recycle_file(sel, self.app.on_refresh_dir)
+            fileops.recycle_file(sel, self.parent_win.on_refresh_dir)
 
     def delete_target(self, event=None):
         if event.widget == self.main_tree:
             sel = self.main_tree.selection()[0]
-            fileops.delete_file(sel, self.app.on_refresh_dir)
+            fileops.delete_file(sel, self.parent_win.on_refresh_dir)
 
     def rename_target(self, event=None):
         if event is not None:  # Called with keyboard
@@ -261,30 +261,30 @@ class FileExplorer(Frame):
         padx = self.main_tree.column("#0")['width']  # don't need to overlap the icon
         pady = height // 2
         width = self.main_tree.column(col)['width']
-        self.rename_popup = RenamePopup(self.main_tree, row, self.app)
+        self.rename_popup = RenamePopup(self.main_tree, row, self.parent_win)
         self.rename_popup.place(x=0 + padx, y=y + pady, anchor=W, width=width)
 
     def init_bookmark(self, event=None):
         if event is not None and event.widget != self.main_tree:
             return
         sel = self.main_tree.selection()[0]
-        popup = BookmarkPopup(self, self.app, sel)
-        self.app.master.wait_window(popup)
+        popup = BookmarkPopup(self, self.parent_win, sel)
+        self.parent_win.master.wait_window(popup)
 
     def bookmark_target(self, path, name):
         bm_man = BookmarkManager()
         bm_man.add_bookmark(path, name)
-        self.app.on_refresh_sidebar()
+        self.parent_win.on_refresh_sidebar()
 
     def render_target_properties(self, event=None):
         if event is not None and event.widget != self.main_tree:
             return
         sel = self.main_tree.selection()[0]
-        pop = PropertiesPopup(self, self.app, sel)
-        self.app.master.wait_window(pop)
+        pop = PropertiesPopup(self, self.parent_win, sel)
+        self.parent_win.master.wait_window(pop)
 
     def paste_thread_finished(self, item):
-        self.app.on_refresh_dir()
+        self.parent_win.on_refresh_dir()
 
     def render_right_click_menu(self, event):
         self.right_click_coords = (event.x, event.y)

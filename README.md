@@ -1,4 +1,4 @@
-# Osmium ![alt text](https://github.com/bussierem/Osmium/blob/master/resources/icons/osmium.ico "Osmium Logo")
+# Osmium ![alt text](https://github.com/bussierem/Osmium/blob/master/resources/icons/osmium.png "Osmium Logo")
 
 Osmium is intended to be a combination learning experience and new file explorer for me (and possibly others) to use.  My intent is to mimic the basics of any normal file explorer (and in the process learn more about how they work), and then add some stuff that I've felt is missing from the standard file explorers.
 

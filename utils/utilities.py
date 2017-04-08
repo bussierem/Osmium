@@ -55,7 +55,7 @@ def read_clipboard():
         return read_clipboard_unix()
 
 
-def write_clipboard(data: str, file=False):
+def write_clipboard_win(data: str, file=False):
     if not file:
         pyperclip.copy(data)
         return
@@ -66,6 +66,12 @@ def write_clipboard(data: str, file=False):
     except:
         pass
     wincb.CloseClipboard()
+
+def write_clipboard(data: str, file=False):
+    if get_os_type() == 'Windows':
+        write_clipboard_win(data, file)
+    else:
+        pyperclip.copy(data)
 
 def thread_finished(thing):
     print("Finished copy thread!")

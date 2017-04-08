@@ -3,6 +3,7 @@ from collections import OrderedDict
 import os
 from os import path
 from tkinter import *
+import pyperclip
 
 if os.name == 'nt':
     import win32con
@@ -177,6 +178,8 @@ class FileExplorer(Frame):
             self.main_tree.insert('', 'end', iid=f, tags='file', values=data)
 
     def build_right_click_menu(self, properties, coords):
+        if hasattr(self, "b2_menu"):
+            self.b2_menu.destroy()
         self.b2_menu = Menu(self.master, tearoff=0)
         menu_items_full = OrderedDict([
             ("Tag", self.TODO),
@@ -217,6 +220,8 @@ class FileExplorer(Frame):
     #                                           EVENTS
     # ------------------------------------------------
     def on_changed_dir(self, event):
+        if len(self.main_tree.selection()) == 0:
+            return
         cwd = self.main_tree.selection()[0]
         self.parent_win.on_changed_dir(cwd)
 

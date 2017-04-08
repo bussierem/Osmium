@@ -94,10 +94,11 @@ class Window(Frame):
         self.file_explorer = FileExplorer(self.main_frame, self)
 
     def change_dir(self, cwd):
-        cwd += '\\'  # Needed for top-level paths like 'C:'
+        title = "{} - Osmium".format(cwd.split(os.path.sep)[-1])
+        cwd += os.path.sep  # Needed for top-level paths like 'C:'
         self.file_explorer.load_dir(cwd)
         self.toolbar.set_dir(cwd)
-        self.master.wm_title(os.path.split(cwd)[1])
+        self.master.wm_title(title)
 
     def on_changed_dir(self, cwd):
         if hasattr(self.toolbar, "search_thread") and self.toolbar.search_thread is not None:

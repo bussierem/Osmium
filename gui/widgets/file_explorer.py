@@ -1,10 +1,13 @@
 import tkinter.ttk as ttk
-import win32api
 from collections import OrderedDict
+import os
 from os import path
 from tkinter import *
 
-import win32con
+if os.name == 'nt':
+    import win32con
+    import win32api
+
 from PIL import Image, ImageTk
 
 import handlers.file_operations as fileops
@@ -84,9 +87,9 @@ class FileExplorer(Frame):
                 command=lambda c=name: self._column_sort(c, self.sort_desc)
             )
         self.load_dir(os.path.expanduser('~'))
-        icon = Image.open('./icons/folder.gif')
+        icon = Image.open('./resources/icons/folder.gif')
         self.folder = ImageTk.PhotoImage(icon)
-        icon = Image.open('./icons/file.gif')
+        icon = Image.open('./resources/icons/file.gif')
         self.file = ImageTk.PhotoImage(icon)
         self.main_tree.tag_configure('folder', image=self.folder)
         self.main_tree.tag_configure('file', image=self.file)

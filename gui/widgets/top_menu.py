@@ -67,7 +67,7 @@ class TopMenu(Frame):
         self.edit_menu.add_separator()
 
         self.edit_menu.add_command(label="Preference", command=self.TODO, accelerator="Ctrl+,")
-        self.bind("<Control-,>", self.TODO)
+        self.bind("<Control-comma>", self.TODO)
 
         # Add Edit Menu to Menubar
         self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)

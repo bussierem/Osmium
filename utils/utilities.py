@@ -3,13 +3,15 @@ import os
 import re
 import sys
 import time
-import win32clipboard as wincb
+
+if os.name == 'nt':
+    import win32clipboard as wincb
+    wincb_formats = {val: name for name, val in vars(wincb).items() if name.startswith('CF_')}
 
 import pyperclip
 
 SIDEBAR_ROW_HEIGHT = 25
 CUT_ENABLED = None
-wincb_formats = {val: name for name, val in vars(wincb).items() if name.startswith('CF_')}
 
 
 def get_os_type():

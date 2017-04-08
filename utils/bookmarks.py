@@ -87,6 +87,8 @@ class BookmarkManager():
             return None
 
     def save_bookmarks(self):
+        if not os.path.exists(self.bm_path):
+            os.mkdir(os.path.sep.join(os.path.split(self.bm_path)[:-1]))
         with open(self.bm_path, "w") as bm_file:
             bm_file.write(json.dumps(self.bookmarks, indent=2, cls=BookmarkEncoder))
 

@@ -14,11 +14,17 @@ class PropertiesPopup(Toplevel):
         self.wm_title("{} Properties".format(os.path.splitext(os.path.split(path)[1])[0]))
         self.is_folder = os.path.isdir(self.path)
         if self.is_folder:
-            self.icon_path = r'./icons/folder_ico.ico'
-            self.png_path = r'./icons/folder_large.gif'
+            if get_os_type() == 'Windows':
+                self.icon_path = './resources/icons/folder_ico.ico'
+            else:
+                self.icon_path = '@./resources/icons/folder_ico.xbm'
+            self.png_path = './resources/icons/folder_large.gif'
         else:
-            self.icon_path = r'./icons/file_ico.ico'
-            self.png_path = r'./icons/file_large.gif'
+            if get_os_type() == 'Windows':
+                self.icon_path = './resources/icons/file_ico.ico'
+            else:
+                self.icon_path = '@./resources/icons/file_ico.xbm'
+            self.png_path = './resources/icons/file_large.gif'
         self.iconbitmap(self.icon_path)
         self.render_base_frame()
         self.render_properties()
@@ -217,6 +223,10 @@ class SizeChecker(Thread):
         return self._stop.is_set()
 
     def get_size(self):
+        if os.path.isfile(self.path):
+            self.cur_size += os.path.getsize(self.path)
+            self.done = True
+            return
         for item in os.walk(self.path):
             for file in item[2]:
                 if self.stopped():

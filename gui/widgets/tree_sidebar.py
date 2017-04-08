@@ -1,5 +1,4 @@
 import tkinter.ttk as ttk
-import win32api
 from collections import OrderedDict
 from tkinter import *
 
@@ -7,6 +6,8 @@ from PIL import Image, ImageTk
 
 from utils.bookmarks import *
 
+if os.name == 'nt':
+    import win32api
 
 class TreeSidebar(Frame):
     def __init__(self, master, parent_win):
@@ -70,9 +71,9 @@ class TreeSidebar(Frame):
         self.tree.item(parent_dir)
 
     def fill_treeview(self):
-        icon = Image.open('./icons/folder.gif')
+        icon = Image.open('./resources/icons/folder.gif')
         self.folder = ImageTk.PhotoImage(icon)
-        icon = Image.open('./icons/file.gif')
+        icon = Image.open('./resources/icons/file.gif')
         self.file = ImageTk.PhotoImage(icon)
         bm_man = BookmarkManager()
         for bm in bm_man.bookmarks:

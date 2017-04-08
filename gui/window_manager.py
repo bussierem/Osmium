@@ -29,9 +29,12 @@ class WindowManager(Frame):
         win_id = uuid.uuid1()
         win_tl = Toplevel(self, width=1024, height=768)
         win_tl.geometry('{}x{}'.format(1024, 768))
-        win_tl.iconbitmap(r'./icons/osmium.ico')
+        if get_os_type() == 'Windows':
+            win_tl.iconbitmap(r'./resources/icons/osmium.ico')
+        else:
+            win_tl.iconbitmap('@./resources/icons/osmium.xbm')
         win_tl.update()
-        win_tl.wm_title(os.path.split(os.path.expanduser("~"))[1])
+        win_tl.wm_title("{} - Osmium".format(os.path.split(os.path.expanduser("~"))[1]))
         new_win = Window(win_id, self, win_tl)
         self.windows[win_id] = new_win
         self.win_order.append(win_id)

@@ -3,7 +3,6 @@ from collections import OrderedDict
 import os
 from os import path
 from tkinter import *
-import pyperclip
 
 if os.name == 'nt':
     import win32con

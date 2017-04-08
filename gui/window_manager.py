@@ -1,6 +1,8 @@
 import uuid
-from tkinter import *
+import threading
 
+from tkinter import *
+from threading import Thread, Timer
 from gui.main_window import Window
 from utils.utilities import *
 
@@ -52,3 +54,34 @@ class WindowManager(Frame):
 
     def to_front(self, win_id):
         self.win_order.append(win_id)
+
+
+class WindowUpdateChecker(Thread):
+    def __init__(self):
+        self.active_windows = {}
+        Thread.__init__(self)
+        self._stop = threading.Event()
+
+    def stop(self):
+        self._stop.set()
+
+    def stopped(self):
+        return self._stop.is_set()
+
+    def update_windows(self):
+        self.timer = Timer(1, self.update_windows).start()
+        for _, window in self.active_windows.items():
+            window.on_refresh_dir()
+
+    def add_window(self, id, win):
+        if hasattr(self, "timer"):
+            self.timer.cancel()
+        self.active_windows[id] = win
+        self.update_windows()
+
+    def remove_window(self, id):
+        if hasattr(self, "timer"):
+            self.timer.cancel()
+        self.active_windows.pop(id)
+        if self.active_windows != {}:
+            self.update_windows()

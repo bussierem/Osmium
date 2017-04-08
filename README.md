@@ -10,7 +10,7 @@ The current plan is to create the MVP (Minimum Viable Product) to replicate the 
 
 ### Missing Features Before Beta Testing
   - File Transfer Problems:
-    - Something causes Windows Explorer to crash sometimes when doing long copy/pastes
+    - Something causes other file explorer apps to crash sometimes when doing long copy/pastes
     - Need a "progress tacker" window to popup on file transfers
   - Search Problems:
     - If closing the app mid-search, the app leaves a thread running for some reason

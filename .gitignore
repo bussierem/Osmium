@@ -1,4 +1,7 @@
 .idea/
 .vscode/
-*/__pycache__/
-*/*/__pycache__/
+gui/popups/__pycache__/
+gui/widgets/__pycache__/
+gui/__pycache__/
+handlers/__pycache__/
+utils/__pycache__/

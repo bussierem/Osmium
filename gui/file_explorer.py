@@ -5,6 +5,7 @@ from gui.widgets.toolbar import Toolbar
 from gui.widgets.top_menu import TopMenu
 from gui.widgets.tree_sidebar import TreeSidebar
 from gui.widgets.file_view import FileView
+from gui.widgets.bookmark_bar import BookmarkBar
 
 #TODO: Move these to a different location
 # Dimensions
@@ -87,10 +88,10 @@ class FileExplorer(Toplevel):
         self.tabs = None  #TODO: Get this working after refactor
         # Full Window
         self.window = Frame(self, background=BACKGROUND)
-        # Menu
-        self.top_menu = TopMenu(self, self.window)
-        # Toolbar
-        self.toolbar = Toolbar(self, self.window)
+        # Top Widgets
+        self.top_menu = TopMenu(self)
+        self.toolbar = Toolbar(self)
+        self.bookmark_bar = BookmarkBar(self)
         # File View
         self.main_frame = Frame(self)
         self.tree_sidebar = TreeSidebar(self.main_frame, self)

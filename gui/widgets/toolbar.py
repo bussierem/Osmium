@@ -6,8 +6,7 @@ from tkinter import *
 
 
 class Toolbar(Frame):
-    def __init__(self, master, parent_win):
-        self.parent_win = parent_win
+    def __init__(self, master):
         self.master = master
         self.current_dir = StringVar()
         self.current_search = StringVar()
@@ -59,6 +58,14 @@ class Toolbar(Frame):
             command=self.up_level
         )
         self.up_button.pack(side=LEFT)
+        self.refresh_button = Button(
+            self,
+            relief=FLAT,
+            font=("Source Code Pro", "12"),
+            text="@",
+            command=self.refresh
+        )
+        self.refresh_button.pack(side=LEFT)
 
     def render_navbar(self):
         self.nav_bar = Entry(
@@ -136,6 +143,8 @@ class Toolbar(Frame):
             self.master.history.new_dir(up_one)
             self.master.set_directory(up_one)
 
+    def refresh(self):
+        self.master.on_refresh_dir()
 
 class SearchThread(Thread):
     def __init__(self, parent, path, search_term, *args, **kwargs):

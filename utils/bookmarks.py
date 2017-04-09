@@ -10,8 +10,7 @@ BOOKMARKS JSON FORMAT
     "<DISPLAY_NAME>" : {
         "index" : int,
         "name" : str,
-        "full_path" : str,
-        "type" : ["folder"/"file"]
+        "full_path" : str
     },
     ...
 ]
@@ -20,22 +19,19 @@ BOOKMARKS JSON FORMAT
 # This should only be necessary in a complete meltdown, or on first boot
 DEFAULT_BOOKMARKS = [
     {
-        "full_path": os.path.join(os.path.expanduser("~"), "Desktop"),
-        "type": "folder",
+
+        "index": 0,
         "name": "Desktop",
-        "index": 0
+        "full_path": os.path.join(os.path.expanduser("~"), "Desktop")
     },
     {
-        "full_path": os.path.join(os.path.expanduser("~"), "Downloads"),
-        "type": "folder",
-        "name": "Downloads",
-        "index": 1
+        "index": 1,
+        "name": "Downloads","full_path": os.path.join(os.path.expanduser("~"), "Downloads")
     },
     {
-        "full_path": os.path.join(os.path.expanduser("~"), "Documents"),
-        "type": "folder",
+        "index": 2,
         "name": "Documents",
-        "index": 2
+        "full_path": os.path.join(os.path.expanduser("~"), "Documents")
     }
 ]
 
@@ -53,7 +49,6 @@ class Bookmark():
         self.index = json['index']
         self.name = json['name']
         self.full_path = json['full_path']
-        self.type = json['type']
 
     def to_json(self):
         return self.__dict__
@@ -87,7 +82,7 @@ class BookmarkManager():
             return None
 
     def save_bookmarks(self):
-        if not os.path.exists(self.bm_path):
+        if not os.path.exists(get_settings_path()):
             os.mkdir(os.path.sep.join(os.path.split(self.bm_path)[:-1]))
         with open(self.bm_path, "w") as bm_file:
             bm_file.write(json.dumps(self.bookmarks, indent=2, cls=BookmarkEncoder))
@@ -97,6 +92,12 @@ class BookmarkManager():
             bm_file.write(json.dumps(self.bookmarks, indent=2, cls=BookmarkEncoder))
 
     def add_bookmark(self, path, name):
+        if os.path.isfile(path):
+            messagebox.showerror(
+                "Cannot bookmark files",
+                "{} is a file - you cannot bookmark a file.  "
+                "Might I suggest you tag it instead?".format(name)
+            )
         if name in [b.name for b in self.bookmarks]:
             messagebox.showerror(
                 "Bookmark already exists",
@@ -104,17 +105,18 @@ class BookmarkManager():
             )
             return
         if path in [b.full_path for b in self.bookmarks]:
-            name = [b.name for b in self.bookmarks if b.full_path == path][0]
+            name = [b.name for b in self.bookmarks
+                    if b.full_path == path][0]
             messagebox.showerror(
                 "Bookmark path already exists",
-                "A bookmark named \"{}\" already exists for:\n  {}".format(name, path)
+                "A bookmark named \"{}\" already exists "
+                "for:\n  {}".format(name, path)
             )
             return
         data = {
             'index': len(self.bookmarks),
             'name': name,
-            'full_path': path,
-            'type': 'folder' if os.path.isdir(path) else 'file'
+            'full_path': path
         }
         self.bookmarks.append(Bookmark(data))
         self.save_bookmarks()

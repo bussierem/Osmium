@@ -3,9 +3,8 @@ from tkinter import messagebox
 
 
 class TopMenu(Frame):
-    def __init__(self, master, parent_win):
+    def __init__(self, master):
         self.master = master
-        self.parent_win = parent_win
         Frame.__init__(self, master)
         self.menu_bar = Menu(self.master, tearoff=0)
         self.master.config(menu=self.menu_bar)

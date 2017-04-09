@@ -78,10 +78,8 @@ class TreeSidebar(Frame):
         bm_man = BookmarkManager()
         for bm in bm_man.bookmarks:
             assert isinstance(bm, Bookmark)
-            if bm.type == "folder":
-                self.tree.insert('', 'end', bm.full_path, image=self.folder, text=bm.name, tags=('bookmark'))
-            elif bm.type == "file":
-                self.tree.insert('', 'end', bm.full_path, image=self.file, text=bm.name, tags=('bookmark'))
+            self.tree.insert('', 'end', bm.full_path, image=self.folder, text=bm.name, tags=('bookmark'))
+        # TODO:  Move this to "compatibility handler"
         drives = self.get_used_drive_letters(self.OS_TYPE)
         for key in drives.keys():
             if key == drives[key]:
@@ -102,7 +100,7 @@ class TreeSidebar(Frame):
                     drive_lbls[d] = info[0] if info[0] != '' else d
                 except:
                     continue
-        elif os == "Linux":
+        elif os == "Unix":
             drive_lbls = {'/': 'Root', '/home/': 'Home'}
         return drive_lbls
 

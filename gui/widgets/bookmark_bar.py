@@ -64,7 +64,7 @@ class BookmarkBar(Frame):
             ("Open in new window", self.TODO),
             ("1", "SEP"),
             ("Edit", self.TODO),
-            ("Delete", self.TODO),
+            ("Delete", lambda: self.delete_bookmark_by_name(name)),
             ("2", "SEP"),
             ("Bookmark Manager", self.TODO)
         ])
@@ -86,13 +86,27 @@ class BookmarkBar(Frame):
                 "Would you like to remove this bookmark?".format(path)
             )
             if delete:
-                name = self.manager.get_bookmark_by_path(path)
-                self.manager.remove_bookmark_by_path(path)
-                button = self.bookmark_buttons[name]
-                button.destroy()
-                self.update()
+                self.delete_bookmark_by_path(path, auto_confirm=True)
             return
         self.master.set_directory(path)
+
+    def delete_bookmark_by_name(self, name, auto_confirm=False):
+        delete = True
+        if not auto_confirm:
+            delete = messagebox.askyesno(
+                "Deleting {}".format(name),
+                "Are you sure?"
+            )
+        if delete:
+            self.manager.remove_bookmark_by_name(name)
+            button = self.bookmark_buttons[name]
+            button.destroy()
+            self.update()
+        self.master.destroy_right_menus()
+
+    def delete_bookmark_by_path(self, path, auto_confirm=False):
+        name = self.manager.get_bookmark_by_path(path)
+        self.delete_bookmark_by_name(name, auto_confirm)
 
     def TODO(self, event=None):
         print("TODO:  This event still needs to be completed/linked!")

@@ -23,6 +23,12 @@ class TopMenu(Frame):
 
         self.file_menu.add_separator()
 
+        self.file_menu.add_command(label="New Folder", command=self.TODO, accelerator="Ctrl+Shift+N")
+        self.bind("<Control-n>", self.open_new_window)
+        self.file_menu.add_command(label="New File", command=self.TODO)
+
+        self.file_menu.add_separator()
+
         self.file_menu.add_command(label="Next Tab", command=self.TODO, accelerator="Ctrl+Tab")
         self.bind("<Control-Tab>", self.TODO)
         self.file_menu.add_command(label="Previous Tab", command=self.TODO, accelerator="Ctrl+Shift+Tab")

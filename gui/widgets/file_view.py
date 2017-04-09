@@ -194,8 +194,11 @@ class FileView(Frame):
             ("Properties", self.render_target_properties)
         ])
         menu_items_no_file = OrderedDict([
-            ("Paste", self.on_paste),
+            ("New Folder", self.TODO),
+            ("New File", self.TODO),
             ("1", "SEP"),
+            ("Paste", self.on_paste),
+            ("2", "SEP"),
             ("Properties", self.TODO)
         ])
         if properties != {}:

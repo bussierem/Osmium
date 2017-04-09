@@ -75,6 +75,7 @@ class BookmarkManager():
         self.backup_bookmarks()
 
     def get_bookmark_by_path(self, path):
+        self.read_bookmarks()
         found = [b.name for b in self.bookmarks if b.full_path == path]
         if len(found) > 0:
             return found[0]
@@ -92,6 +93,7 @@ class BookmarkManager():
             bm_file.write(json.dumps(self.bookmarks, indent=2, cls=BookmarkEncoder))
 
     def add_bookmark(self, path, name):
+        self.read_bookmarks()
         if os.path.isfile(path):
             messagebox.showerror(
                 "Cannot bookmark files",
@@ -122,6 +124,7 @@ class BookmarkManager():
         self.save_bookmarks()
 
     def change_bookmark_index(self, name, new_idx):
+        self.read_bookmarks()
         bookmark = self.get_bookmark_by_attr('name', name)
         if bookmark.index == new_idx:
             return
@@ -139,15 +142,18 @@ class BookmarkManager():
         self.save_bookmarks()
 
     def get_bookmark_by_attr(self, attr, match):
+        self.read_bookmarks()
         found = [b for b in self.bookmarks if getattr(b, attr) == match]
         if len(found) == 0:
             return None
         return found[0]
 
     def remove_bookmark_by_name(self, name):
+        self.read_bookmarks()
         self.bookmarks = [b for b in self.bookmarks if b.name != name]
         self.save_bookmarks()
 
     def remove_bookmark_by_path(self, path):
+        self.read_bookmarks()
         self.bookmarks = [b for b in self.bookmarks if b.full_path != path]
         self.save_bookmarks()

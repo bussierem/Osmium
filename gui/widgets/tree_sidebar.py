@@ -4,7 +4,7 @@ from tkinter import *
 
 from PIL import Image, ImageTk
 
-from utils.bookmarks import *
+from utils.utilities import *
 
 if os.name == 'nt':
     import win32api
@@ -75,10 +75,6 @@ class TreeSidebar(Frame):
         self.folder = ImageTk.PhotoImage(icon)
         icon = Image.open('./resources/icons/file.gif')
         self.file = ImageTk.PhotoImage(icon)
-        bm_man = BookmarkManager()
-        for bm in bm_man.bookmarks:
-            assert isinstance(bm, Bookmark)
-            self.tree.insert('', 'end', bm.full_path, image=self.folder, text=bm.name, tags=('bookmark'))
         # TODO:  Move this to "compatibility handler"
         drives = self.get_used_drive_letters(self.OS_TYPE)
         for key in drives.keys():
@@ -125,19 +121,6 @@ class TreeSidebar(Frame):
     def item_clicked(self, event):
         cwd = self.tree.identify('item', event.x, event.y)
         item = self.tree.item(cwd)
-        if 'bookmark' in item['tags']:
-            if not os.path.exists(cwd):
-                delete = messagebox.askyesno(
-                    "Bookmark Invalid",
-                    "This bookmarks location\n"
-                    "{}\nno longer exists.\n"
-                    "Would you like to remove this bookmark?".format(cwd)
-                )
-                if delete:
-                    bm_man = BookmarkManager()
-                    bm_man.remove_bookmark_by_path(cwd)
-                    self.refresh()
-                return
         if os.path.isdir(cwd):
             self.parent_win.on_changed_dir(cwd)
 

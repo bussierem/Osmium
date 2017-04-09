@@ -81,6 +81,7 @@ class FileExplorer(Toplevel):
         # Window Bindings
         self.bind("<FocusIn>", lambda _: self.lift)
         self.bind("<Control-n>", lambda _: self.master.create_child())
+        self.bind('<Button-1>', self.destroy_right_menus)
         # Apply Config
         self.update()
 
@@ -131,3 +132,11 @@ class FileExplorer(Toplevel):
     # TODO: RENAME "refresh_sidebar"
     def on_refresh_sidebar(self):
         self.tree_sidebar.refresh()
+
+    def refresh_bookmark_bar(self):
+        self.bookmark_bar.refresh()
+
+    def destroy_right_menus(self, event=None):
+        for widget in [self.bookmark_bar, self.file_view, self.tree_sidebar]:
+            if hasattr(widget, "right_menu"):
+                widget.right_menu.destroy()

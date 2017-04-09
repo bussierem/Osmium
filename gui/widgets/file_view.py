@@ -177,9 +177,8 @@ class FileView(Frame):
             self.main_tree.insert('', 'end', iid=f, tags='file', values=data)
 
     def build_right_click_menu(self, properties, coords):
-        if hasattr(self, "b2_menu"):
-            self.b2_menu.destroy()
-        self.b2_menu = Menu(self.master, tearoff=0)
+        self.parent_win.destroy_right_menus()
+        self.right_menu = Menu(self.master, tearoff=0)
         menu_items_full = OrderedDict([
             ("Tag", self.TODO),
             ("Untag", self.TODO),
@@ -205,13 +204,13 @@ class FileView(Frame):
             render_items = menu_items_no_file
         for lbl, cmd in render_items.items():
             if cmd == "SEP":
-                self.b2_menu.add_separator()
+                self.right_menu.add_separator()
             elif cmd == self.TODO:
-                self.b2_menu.add_command(label=lbl, command=cmd, state=DISABLED)
+                self.right_menu.add_command(label=lbl, command=cmd, state=DISABLED)
             else:
-                self.b2_menu.add_command(label=lbl, command=cmd)
+                self.right_menu.add_command(label=lbl, command=cmd)
         x, y = coords
-        self.b2_menu.post(x, y)
+        self.right_menu.post(x, y)
 
     def TODO(self, event=None):
         print("TODO:  This event still needs to be completed/linked!")
@@ -281,7 +280,7 @@ class FileView(Frame):
     def bookmark_target(self, path, name):
         bm_man = BookmarkManager()
         bm_man.add_bookmark(path, name)
-        self.parent_win.on_refresh_sidebar()
+        self.parent_win.refresh_bookmark_bar()
 
     def render_target_properties(self, event=None):
         if event is not None and event.widget != self.main_tree:

@@ -222,7 +222,7 @@ class FileView(Frame):
         if len(self.main_tree.selection()) == 0:
             return
         cwd = self.main_tree.selection()[0]
-        self.master.on_changed_dir(cwd)
+        self.parent_win.on_changed_dir(cwd)
 
     def on_cut(self, event=None):
         item = self.main_tree.selection()[0]
@@ -247,12 +247,12 @@ class FileView(Frame):
     def recycle_target(self, event=None):
         if event.widget == self.main_tree:
             sel = self.main_tree.selection()[0]
-            fileops.recycle_file(sel, self.master.on_refresh_dir)
+            fileops.recycle_file(sel, self.parent_win.on_refresh_dir)
 
     def delete_target(self, event=None):
         if event.widget == self.main_tree:
             sel = self.main_tree.selection()[0]
-            fileops.delete_file(sel, self.master.on_refresh_dir)
+            fileops.delete_file(sel, self.parent_win.on_refresh_dir)
 
     def rename_target(self, event=None):
         if event is not None:  # Called with keyboard
@@ -281,7 +281,7 @@ class FileView(Frame):
     def bookmark_target(self, path, name):
         bm_man = BookmarkManager()
         bm_man.add_bookmark(path, name)
-        self.master.on_refresh_sidebar()
+        self.parent_win.on_refresh_sidebar()
 
     def render_target_properties(self, event=None):
         if event is not None and event.widget != self.main_tree:
@@ -291,7 +291,7 @@ class FileView(Frame):
         self.master.wait_window(pop)
 
     def paste_thread_finished(self, item):
-        self.master.on_refresh_dir()
+        self.parent_win.on_refresh_dir()
 
     def render_right_click_menu(self, event):
         self.right_click_coords = (event.x, event.y)

@@ -93,7 +93,7 @@ class FileExplorer(Toplevel):
         self.toolbar = Toolbar(self, self.window)
         # File View
         self.main_frame = Frame(self)
-        self.tree_sidebar = TreeSidebar(self.main_frame, self.window)
+        self.tree_sidebar = TreeSidebar(self.main_frame, self)
         self.file_view = FileView(self.main_frame, self)
         self.main_frame.pack(side=TOP, fill=BOTH, expand=True)
         self.main_frame.columnconfigure(0, weight=1)

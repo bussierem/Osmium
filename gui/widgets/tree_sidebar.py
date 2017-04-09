@@ -72,7 +72,6 @@ class TreeSidebar(Frame):
         self.tree.item(parent_dir)
 
     def fill_treeview(self):
-        # TODO:  Move this to "compatibility handler"
         drives = CompatibilityHandler.get_used_drive_letters()
         for key in drives.keys():
             if key == drives[key]:
@@ -101,7 +100,7 @@ class TreeSidebar(Frame):
     def item_clicked(self, event):
         cwd = self.tree.identify('item', event.x, event.y)
         if os.path.isdir(cwd):
-            self.parent_win.on_changed_dir(cwd)
+            self.parent_win.directory_changed(cwd)
 
     def item_double_clicked(self, event):
         cwd = self.tree.identify('item', event.x, event.y)
@@ -112,7 +111,7 @@ class TreeSidebar(Frame):
 
     def on_changed_dir(self, event):
         cwd = self.tree.selection()[0]
-        self.parent_win.on_changed_dir(cwd)
+        self.parent_win.directory_changed(cwd)
 
     def remove_bookmark(self, event=None):
         path = self.tree.selection()[0]

@@ -110,8 +110,7 @@ class FileExplorer(Toplevel):
         self.file_view.load_dir(cwd)
         self.toolbar.set_dir(cwd)
 
-    # TODO: RENAME "directory_changed"
-    def on_changed_dir(self, cwd):
+    def directory_changed(self, cwd):
         if hasattr(self.toolbar, "search_thread") \
                and self.toolbar.search_thread is not None:
             self.toolbar.search_thread.stop()
@@ -121,13 +120,11 @@ class FileExplorer(Toplevel):
         elif os.path.isfile(cwd):
             open_file(cwd)
 
-    # TODO: RENAME "refresh"
-    def on_refresh_dir(self, item=None):
+    def refresh(self, item=None):
         self.set_directory(self.history.get_full_cwd())
-        self.on_refresh_sidebar()
+        self.refresh_sidebar()
 
-    # TODO: RENAME "refresh_sidebar"
-    def on_refresh_sidebar(self):
+    def refresh_sidebar(self):
         self.tree_sidebar.refresh()
 
     def refresh_bookmark_bar(self):

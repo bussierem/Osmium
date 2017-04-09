@@ -32,7 +32,7 @@ class RenamePopup(Entry):
             old_path = os.path.join(self.root_path, self.cur_name + self.old_ext)
             full_path = os.path.join(self.root_path, new_name + ext)
             os.rename(old_path, full_path)
-            self.app.on_refresh_dir()
+            self.app.refresh()
             self.destroy()
         else:
             invalid_chars = CompatibilityHandler.get_invalid_chars()

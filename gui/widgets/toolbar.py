@@ -141,7 +141,7 @@ class Toolbar(Frame):
 
     def on_changed_dir(self, event):
         cwd = self.current_dir.get()
-        self.master.on_changed_dir(cwd)
+        self.master.directory_changed(cwd)
 
     def back(self):
         self.master.set_directory(self.master.history.back())
@@ -157,7 +157,7 @@ class Toolbar(Frame):
             self.master.set_directory(up_one)
 
     def refresh(self):
-        self.master.on_refresh_dir()
+        self.master.refresh()
 
 class SearchThread(Thread):
     def __init__(self, parent, path, search_term, *args, **kwargs):

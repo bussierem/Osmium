@@ -61,7 +61,7 @@ These are the features that, when complete, will represent what I consider to be
         - ~~This goes to Recycle Bin~~
     - ~~Rename (popup with name and ext options)~~
     - ~~Bookmarking~~
-        - ~~Drag-and-drop reordering for Bookmarks~~
+        - Drag-and-drop reordering for Bookmarks
     - ~~Tag (Not implemented in MVP)~~
     - ~~Properties~~
   - ~~Confirm popup on Shift+Delete~~
@@ -94,8 +94,8 @@ These are features that I will only start looking at or considering after I have
   - Remove File Menu
     - Replace with F1 "Help" showing keyboard shortcuts
     - Create "Settings" button in Bookmarks Bar
-  - User created bookmarks
-    - Chrome-style "Bookmarks Bar"
+  - ~~User created bookmarks~~
+    - ~~Chrome-style "Bookmarks Bar"~~
   - Settings
     - Allow "sort by filename", not folders first
   - Indexing/Caching for better Search performance
@@ -104,6 +104,4 @@ These are features that I will only start looking at or considering after I have
     - Prioritize tagged files
   - Optimizing performance
   - "Open With" Option
-  - Allow "delete confirmation" popup to be disabled via checkbox on popup
-    - by filetype or location advanced disable?
   - Add "Recycle instead" option to "delete confirmation" popup

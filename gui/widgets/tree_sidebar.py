@@ -1,10 +1,12 @@
 import tkinter.ttk as ttk
 from collections import OrderedDict
 from tkinter import *
+from tkinter import messagebox
 
 from PIL import Image, ImageTk
 
 from utils.utilities import *
+from handlers.compatibility import CompatibilityHandler
 
 if os.name == 'nt':
     import win32api
@@ -14,7 +16,6 @@ class TreeSidebar(Frame):
         self.master = master
         self.parent_win = parent_win
         Frame.__init__(self, master)
-        self.OS_TYPE = get_os_type()
         style = ttk.Style(self.master)
         self.row_height = SIDEBAR_ROW_HEIGHT
         style.configure('Sidebar.Treeview', rowheight=self.row_height)
@@ -76,29 +77,13 @@ class TreeSidebar(Frame):
         icon = Image.open('./resources/icons/file.gif')
         self.file = ImageTk.PhotoImage(icon)
         # TODO:  Move this to "compatibility handler"
-        drives = self.get_used_drive_letters(self.OS_TYPE)
+        drives = CompatibilityHandler.get_used_drive_letters()
         for key in drives.keys():
             if key == drives[key]:
                 self.tree.insert('', 'end', key, text=drives[key])
             else:
                 self.tree.insert('', 'end', key, text="{} ({})".format(drives[key], key))
             self.get_subdirs(key)
-
-    def get_used_drive_letters(self, os):
-        drive_lbls = OrderedDict()
-        if os == "Windows":
-            drives = win32api.GetLogicalDriveStrings()
-            drives = drives.split('\000')[:-1]
-            for d in drives:
-                drive_lbls[d] = d
-                try:
-                    info = win32api.GetVolumeInformation(d)
-                    drive_lbls[d] = info[0] if info[0] != '' else d
-                except:
-                    continue
-        elif os == "Unix":
-            drive_lbls = {'/': 'Root', '/home/': 'Home'}
-        return drive_lbls
 
     def refresh(self, event=None):
         self.tree.delete(*self.tree.get_children())

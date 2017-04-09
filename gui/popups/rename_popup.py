@@ -35,7 +35,7 @@ class RenamePopup(Entry):
             self.app.on_refresh_dir()
             self.destroy()
         else:
-            invalid_chars = get_invalid_chars()
+            invalid_chars = CompatibilityHandler.get_invalid_chars()
             messagebox.showerror(
                 'Invalid Filename',
                 'A file name cannot contain any of the following characters:\n'

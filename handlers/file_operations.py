@@ -142,7 +142,7 @@ def paste_to_existing(source):
 def paste_replace(source, dest):
     global CURRENT_COPY_OP, RUNNING_OPERATIONS
     if isinstance(CURRENT_COPY_OP, CutOperation):
-        if get_os_type() == "Windows":
+        if CompatibilityHandler.get_os_type() == "Windows":
             RUNNING_OPERATIONS.append(DeleteOperation(dest))
         func = shutil.move
     else:
@@ -193,8 +193,8 @@ def rename_file(source, new_name):
         if replace is None:  # Cancel Operation
             return
         elif replace is True:  # Replace existing file
-            os = get_os_type()
-            if os == "Windows":
+            cur_os = CompatibilityHandler.get_os_type()
+            if cur_os == "Windows":
                 RUNNING_OPERATIONS.append(DeleteOperation(new_file))
         else:  # Auto-Rename File
             new_file = rename_copy(source, new_file)

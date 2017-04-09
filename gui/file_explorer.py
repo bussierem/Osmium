@@ -6,6 +6,7 @@ from gui.widgets.top_menu import TopMenu
 from gui.widgets.tree_sidebar import TreeSidebar
 from gui.widgets.file_view import FileView
 from gui.widgets.bookmark_bar import BookmarkBar
+from handlers.compatibility import CompatibilityHandler
 
 #TODO: Move these to a different location
 # Dimensions
@@ -73,11 +74,7 @@ class FileExplorer(Toplevel):
         self.geometry('{}x{}'.format(DEFAULT_WIDTH, DEFAULT_HEIGHT))
         self.protocol("WM_DELETE_WINDOW", self.close_window)
         # Window Look 'n' Feel
-        # TODO: Move these types of checks to a "compatibility handler"
-        if get_os_type() == 'Windows':
-            self.iconbitmap(r'./resources/icons/osmium.ico')
-        else:
-            self.iconbitmap('@./resources/icons/osmium.xbm')
+        self.iconbitmap(CompatibilityHandler.get_app_icon())
         # Window Bindings
         self.bind("<FocusIn>", lambda _: self.lift)
         self.bind("<Control-n>", lambda _: self.master.create_child())

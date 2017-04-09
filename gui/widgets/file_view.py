@@ -23,7 +23,6 @@ class FileView(Frame):
         self.parent_win = parent_win
         self.right_click_coords = (0, 0)
         Frame.__init__(self, master)
-        self.OS_TYPE = get_os_type()
         self.sort_desc = True
         self.create_widgets()
         self.load_data()

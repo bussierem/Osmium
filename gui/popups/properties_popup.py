@@ -3,6 +3,7 @@ from threading import Thread, Timer
 from tkinter import *
 
 from utils.utilities import *
+from handlers.compatibility import CompatibilityHandler
 
 
 class PropertiesPopup(Toplevel):
@@ -14,17 +15,9 @@ class PropertiesPopup(Toplevel):
         self.wm_title("{} Properties".format(os.path.splitext(os.path.split(path)[1])[0]))
         self.is_folder = os.path.isdir(self.path)
         if self.is_folder:
-            if get_os_type() == 'Windows':
-                self.icon_path = './resources/icons/folder_ico.ico'
-            else:
-                self.icon_path = '@./resources/icons/folder_ico.xbm'
-            self.png_path = './resources/icons/folder_large.gif'
+            self.icon_path = CompatibilityHandler.get_folder_icon()
         else:
-            if get_os_type() == 'Windows':
-                self.icon_path = './resources/icons/file_ico.ico'
-            else:
-                self.icon_path = '@./resources/icons/file_ico.xbm'
-            self.png_path = './resources/icons/file_large.gif'
+            self.icon_path = CompatibilityHandler.get_file_icon()
         self.iconbitmap(self.icon_path)
         self.render_base_frame()
         self.render_properties()
@@ -42,11 +35,15 @@ class PropertiesPopup(Toplevel):
         super().destroy()
 
     def render_base_frame(self):
+        if self.is_folder:
+            self.large_path = './resources/icons/folder_large.gif'
+        else:
+            self.large_path = './resources/icons/file_large.gif'
         self.form_frame = Frame(self, padx=10)
         self.form_frame.pack(side=TOP, fill=BOTH, expand=True)
         self.img_name_frame = Frame(self.form_frame, padx=10, pady=10)
         self.img_name_frame.pack(side=TOP, fill=X, expand=True)
-        self.gif_img = PhotoImage(file=self.png_path)
+        self.gif_img = PhotoImage(file=self.large_path)
         self.icon_lbl = Label(self.img_name_frame, image=self.gif_img)
         self.icon_lbl.image = self.gif_img
         self.icon_lbl.pack(side=LEFT, expand=True)

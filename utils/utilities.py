@@ -3,6 +3,7 @@ import os
 import re
 import sys
 import time
+from handlers.compatibility import CompatibilityHandler
 
 if os.name == 'nt':
     import win32clipboard as wincb
@@ -14,70 +15,16 @@ SIDEBAR_ROW_HEIGHT = 25
 CUT_ENABLED = None
 
 
-def get_os_type():
-    if sys.platform.startswith('darwin'):
-        os_type = "Mac"
-    elif os.name == "nt":
-        os_type = "Windows"
-    else:
-        os_type = "Unix"
-    return os_type
-
-
-def read_clipboard_win():
-    wincb.OpenClipboard(None)
-    data = None
-    for k in wincb_formats.keys():
-        try:
-            data = wincb.GetClipboardData(k)
-        except TypeError:
-            continue
-        if data != None:
-            if isinstance(data, tuple):
-                print("Format: {}".format(wincb_formats[k]))
-                print(data)
-                data = data[0]
-            else:
-                data = data.decode()
-            break
-    wincb.CloseClipboard()
-    return data
-
-
-def read_clipboard_unix():
-    return pyperclip.paste()
-
-
 def read_clipboard():
-    if get_os_type() == "Windows":
-        return read_clipboard_win()
-    else:
-        return read_clipboard_unix()
-
-
-def write_clipboard_win(data: str, file=False):
-    if not file:
-        pyperclip.copy(data)
-        return
-    wincb.OpenClipboard(None)
-    format = [k for k in wincb_formats.keys() if wincb_formats[k] == 'CF_HDROP'][0]
-    try:
-        wincb.SetClipboardData(format, data)
-    except:
-        pass
-    wincb.CloseClipboard()
+    return CompatibilityHandler.read_clipboard()
 
 def write_clipboard(data: str, file=False):
-    if get_os_type() == 'Windows':
-        write_clipboard_win(data, file)
-    else:
-        pyperclip.copy(data)
+    CompatibilityHandler.write_clipboard(data, file)
 
 def thread_finished(thing):
     print("Finished copy thread!")
     print("thing = {}".format(thing))
     print("End:  {}".format(time.time()))
-
 
 def rename_copy(src_path, dest_path):
     srcfile, ext = os.path.splitext(src_path.split(os.path.sep)[-1])
@@ -90,44 +37,18 @@ def rename_copy(src_path, dest_path):
     copy_name += ext
     return os.path.join(dst, copy_name)
 
-
 def is_valid_filename(filename):
     has_invalid_chars = False
     uses_reserved_name = False
-    OS_TYPE = get_os_type()
-    if OS_TYPE == "Windows":
-        invalid_chars_regex = re.compile(r'((?![<>:"|?\/\\*]).)+')
-        # Extra reserved names to check for in Windows
-        reserved_names_regex = re.compile(
-            r'^(COM[1-9])|(LPT[1-9])|(PRN|AUX|NUL|CON)$'
-        )
-        if re.match(reserved_names_regex, filename):
-            uses_reserved_name = True
-    elif OS_TYPE == "Mac":
-        invalid_chars_regex = re.compile(r'((?![\/\:\x00]).)+')
-    else:
-        invalid_chars_regex = re.compile(r'((?![\/\x00]).)+')
+    invalid_chars_regex = CompatibilityHandler.get_invalid_chars_regex()
+    reserved_names_regex = CompatibilityHandler.get_reserved_names_regex()
+    if re.match(reserved_names_regex, filename):
+        uses_reserved_name = True
     if re.match(invalid_chars_regex, filename):
         has_invalid_chars = True
     return has_invalid_chars or uses_reserved_name
 
 
-def get_invalid_chars():
-    OS_TYPE = get_os_type()
-    if OS_TYPE == "Windows":
-        return r'/  \  <  >  :  "  *  |  ?'
-    elif OS_TYPE == 'Mac':
-        return r'/  :'
-    else:
-        return r'/'
-
-
 def open_file(filepath):
-    OS_TYPE = get_os_type()
-    if OS_TYPE == "Mac":
-        command = "open"
-    elif OS_TYPE == "Windows":
-        command = "start"
-    else:
-        command = "xdg-open"
+    command = CompatibilityHandler.get_open_command()
     os.system("{} {}".format(command, filepath))

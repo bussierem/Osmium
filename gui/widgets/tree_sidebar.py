@@ -34,7 +34,7 @@ class TreeSidebar(Frame):
         self.tree.bind("<Double-1>", self.item_double_clicked)
         self.tree.bind("<Button-1>", self.left_mouse_down)
         self.tree.bind("<ButtonRelease-1>", self.left_mouse_up)
-        self.tree.bind("<B1-Motion>", self.mouse_move)
+        # self.tree.bind("<B1-Motion>", self.mouse_move)
         self.tree.bind("<Control-F5>", self.refresh)
         self.tree.bind("<Delete>", self.remove_bookmark)
 
@@ -72,10 +72,6 @@ class TreeSidebar(Frame):
         self.tree.item(parent_dir)
 
     def fill_treeview(self):
-        icon = Image.open('./resources/icons/folder.gif')
-        self.folder = ImageTk.PhotoImage(icon)
-        icon = Image.open('./resources/icons/file.gif')
-        self.file = ImageTk.PhotoImage(icon)
         # TODO:  Move this to "compatibility handler"
         drives = CompatibilityHandler.get_used_drive_letters()
         for key in drives.keys():
@@ -101,11 +97,9 @@ class TreeSidebar(Frame):
         for sub in subdirs:
             if os.path.isdir(os.path.join(parent, sub)):
                 self.get_subdirs(os.path.join(parent, sub))
-        self.on_changed_dir(event)
 
     def item_clicked(self, event):
         cwd = self.tree.identify('item', event.x, event.y)
-        item = self.tree.item(cwd)
         if os.path.isdir(cwd):
             self.parent_win.on_changed_dir(cwd)
 
@@ -113,6 +107,8 @@ class TreeSidebar(Frame):
         cwd = self.tree.identify('item', event.x, event.y)
         if os.path.isfile(cwd):
             open_file(cwd)
+        else:
+            self.on_changed_dir(event)
 
     def on_changed_dir(self, event):
         cwd = self.tree.selection()[0]
@@ -138,7 +134,6 @@ class TreeSidebar(Frame):
         self.CLICK_DOWN = False
         self.END_EVENT = event
         if not self.DRAG_START:
-            self.item_clicked(event)
             return
         if hasattr(self, "line"):
             self.line.destroy()

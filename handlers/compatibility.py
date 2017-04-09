@@ -68,16 +68,16 @@ class CompatibilityHandler():
     @staticmethod
     def get_folder_icon():
         if get_os_type() == 'Windows':
-            return './resources/icons/folder_ico.ico'
+            return './resources/icons/folder.ico'
         else:
-            return '@./resources/icons/folder_ico.xbm'
+            return '@./resources/icons/folder.xbm'
 
     @staticmethod
     def get_file_icon():
         if get_os_type() == 'Windows':
-            return './resources/icons/file_ico.ico'
+            return './resources/icons/file.ico'
         else:
-            return '@./resources/icons/file_ico.xbm'
+            return '@./resources/icons/file.xbm'
 
     @staticmethod
     def get_used_drive_letters():

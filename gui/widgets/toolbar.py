@@ -3,6 +3,7 @@ import threading
 import time
 from threading import Thread, Timer
 from tkinter import *
+from PIL import Image, ImageTk
 
 
 class Toolbar(Frame):
@@ -34,35 +35,47 @@ class Toolbar(Frame):
         self.search_bar.bind('<Return>', self.on_enter)
 
     def render_buttons(self):
+        back_icon = Image.open('./resources/icons/back.png')
+        self.back_img = ImageTk.PhotoImage(back_icon)
         self.back_button = Button(
             self,
             relief=FLAT,
             font=("Source Code Pro", "12"),
-            text="<=",
+            # text="<=",
+            image=self.back_img,
             command=self.back
         )
         self.back_button.pack(side=LEFT)
+        fwd_icon = Image.open('./resources/icons/forward.png')
+        self.fwd_img = ImageTk.PhotoImage(fwd_icon)
         self.forward_button = Button(
             self,
             relief=FLAT,
             font=("Source Code Pro", "12"),
-            text="=>",
+            # text="=>",
+            image=self.fwd_img,
             command=self.forward
         )
         self.forward_button.pack(side=LEFT)
+        up_icon = Image.open('./resources/icons/up_level.png')
+        self.up_img = ImageTk.PhotoImage(up_icon)
         self.up_button = Button(
             self,
             relief=FLAT,
             font=("Source Code Pro", "12"),
-            text=" ^ ",
+            # text=" ^ ",
+            image=self.up_img,
             command=self.up_level
         )
         self.up_button.pack(side=LEFT)
+        refresh_icon = Image.open('./resources/icons/refresh.png')
+        self.refresh_img = ImageTk.PhotoImage(refresh_icon)
         self.refresh_button = Button(
             self,
             relief=FLAT,
             font=("Source Code Pro", "12"),
-            text="@",
+            # text="@",
+            image=self.refresh_img,
             command=self.refresh
         )
         self.refresh_button.pack(side=LEFT)

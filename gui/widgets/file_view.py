@@ -3,6 +3,7 @@ from collections import OrderedDict
 import os
 from os import path
 from tkinter import *
+import time
 
 if os.name == 'nt':
     import win32con
@@ -227,12 +228,12 @@ class FileView(Frame):
 
     def on_cut(self, event=None):
         item = self.main_tree.selection()[0]
-        write_clipboard(item, os.path.isfile(item))
+        CompatibilityHandler.write_clipboard(item, os.path.isfile(item))
         fileops.cut_file(item)
 
     def on_copy(self, event=None):
         item = self.main_tree.selection()[0]
-        write_clipboard(item, os.path.isfile(item))
+        CompatibilityHandler.write_clipboard(item, os.path.isfile(item))
         fileops.copy_file(item)
 
     def on_paste(self, event=None):

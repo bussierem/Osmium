@@ -141,7 +141,7 @@ class TreeSidebar(Frame):
                     self.refresh()
                 return
         if os.path.isdir(cwd):
-            self.parent_win.on_changed_dir(cwd)
+            self.master.on_changed_dir(cwd)
 
     def item_double_clicked(self, event):
         cwd = self.tree.identify('item', event.x, event.y)

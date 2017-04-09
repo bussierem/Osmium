@@ -3,7 +3,7 @@ from tkinter import *
 import gui.widgets.toolbar as tb
 import gui.widgets.top_menu as menu
 import gui.widgets.tree_sidebar as sidebar
-from gui.widgets.file_explorer import FileExplorer
+from gui.widgets.file_view import FileView
 from utils.utilities import *
 
 LIGHT_TEAL = "#00e6e6"
@@ -48,7 +48,7 @@ class Window(Frame):
         self.master = master
         self.manager = manager
         Frame.__init__(self, master, background=BACKGROUND)
-        self.HISTORY = History()
+        self.history = History()
         self.render_menu()
         self.render_toolbar()
         self.render_main_frame()
@@ -91,26 +91,30 @@ class Window(Frame):
         self.tree_sidebar = sidebar.TreeSidebar(self.main_frame, self)
 
     def render_file_grid(self):
-        self.file_explorer = FileExplorer(self.main_frame, self)
+        self.file_explorer = FileView(self.main_frame, self)
 
-    def change_dir(self, cwd):
+    # Purpose:  Edit which directory is displayed in the window
+    def set_directory(self, cwd):
         title = "{} - Osmium".format(cwd.split(os.path.sep)[-1])
         cwd += os.path.sep  # Needed for top-level paths like 'C:'
         self.file_explorer.load_dir(cwd)
         self.toolbar.set_dir(cwd)
         self.master.wm_title(title)
 
+    # Purpose:  Called when an object in the FileView is double-clicked
     def on_changed_dir(self, cwd):
         if hasattr(self.toolbar, "search_thread") and self.toolbar.search_thread is not None:
             self.toolbar.search_thread.stop()
         if os.path.isdir(cwd):
-            self.HISTORY.new_dir(cwd)
-            self.change_dir(cwd)
+            self.history.new_dir(cwd)
+            self.set_directory(cwd)
         elif os.path.isfile(cwd):
             open_file(cwd)
 
+    # Purpose:  "Refreshes" the current directory view for the window
     def on_refresh_dir(self, item=None):
-        self.change_dir(self.HISTORY.get_full_cwd())
+        self.set_directory(self.history.get_full_cwd())
 
+    # Purpose:  "Refreshes" the Sidebar
     def on_refresh_sidebar(self):
         self.tree_sidebar.refresh()

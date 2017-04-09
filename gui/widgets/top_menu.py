@@ -107,7 +107,7 @@ class TopMenu(Frame):
             "Copyright (c) 2016 Max Bussiere")
 
     def open_new_window(self):
-        self.parent_win.manager.open_new_window()
+        self.master.manager.create_child()
 
     def close_window(self):
-        self.parent_win.close_window()
+        self.master.close_window()

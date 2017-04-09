@@ -17,7 +17,7 @@ from gui.popups.rename_popup import RenamePopup
 from utils.bookmarks import *
 
 
-class FileExplorer(Frame):
+class FileView(Frame):
     def __init__(self, master, parent_win):
         self.master = master
         self.parent_win = parent_win
@@ -222,7 +222,7 @@ class FileExplorer(Frame):
         if len(self.main_tree.selection()) == 0:
             return
         cwd = self.main_tree.selection()[0]
-        self.parent_win.on_changed_dir(cwd)
+        self.master.on_changed_dir(cwd)
 
     def on_cut(self, event=None):
         item = self.main_tree.selection()[0]
@@ -236,23 +236,23 @@ class FileExplorer(Frame):
 
     def on_paste(self, event=None):
         if event is None:
-            dest = self.parent_win.HISTORY.get_current_dir()
+            dest = self.master.history.get_current_dir()
         else:
             sel = self.main_tree.selection()
-            dest = sel[0] if sel else self.parent_win.HISTORY.get_full_cwd()
+            dest = sel[0] if sel else self.master.history.get_full_cwd()
             if os.path.isfile(dest):
-                dest = self.parent_win.HISTORY.get_full_cwd()
+                dest = self.master.history.get_full_cwd()
         fileops.paste_file(dest, self.paste_thread_finished)
 
     def recycle_target(self, event=None):
         if event.widget == self.main_tree:
             sel = self.main_tree.selection()[0]
-            fileops.recycle_file(sel, self.parent_win.on_refresh_dir)
+            fileops.recycle_file(sel, self.master.on_refresh_dir)
 
     def delete_target(self, event=None):
         if event.widget == self.main_tree:
             sel = self.main_tree.selection()[0]
-            fileops.delete_file(sel, self.parent_win.on_refresh_dir)
+            fileops.delete_file(sel, self.master.on_refresh_dir)
 
     def rename_target(self, event=None):
         if event is not None:  # Called with keyboard
@@ -276,22 +276,22 @@ class FileExplorer(Frame):
             return
         sel = self.main_tree.selection()[0]
         popup = BookmarkPopup(self, self.parent_win, sel)
-        self.parent_win.master.wait_window(popup)
+        self.master.wait_window(popup)
 
     def bookmark_target(self, path, name):
         bm_man = BookmarkManager()
         bm_man.add_bookmark(path, name)
-        self.parent_win.on_refresh_sidebar()
+        self.master.on_refresh_sidebar()
 
     def render_target_properties(self, event=None):
         if event is not None and event.widget != self.main_tree:
             return
         sel = self.main_tree.selection()[0]
         pop = PropertiesPopup(self, self.parent_win, sel)
-        self.parent_win.master.wait_window(pop)
+        self.master.wait_window(pop)
 
     def paste_thread_finished(self, item):
-        self.parent_win.on_refresh_dir()
+        self.master.on_refresh_dir()
 
     def render_right_click_menu(self, event):
         self.right_click_coords = (event.x, event.y)

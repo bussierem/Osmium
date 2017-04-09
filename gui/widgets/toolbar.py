@@ -67,7 +67,7 @@ class Toolbar(Frame):
             font=("Source Code Pro", "12"),
             relief=FLAT
         )
-        self.current_dir.set(self.parent_win.HISTORY.cwd)
+        self.current_dir.set(self.master.history.cwd)
         self.nav_bar.pack(side=LEFT, padx=2, fill=X, expand=True)
 
     def render_searchbar(self):
@@ -77,32 +77,32 @@ class Toolbar(Frame):
             font=("Source Code Pro", "12"),
             foreground="grey"
         )
-        self.current_search.set("Search {}".format(self.parent_win.HISTORY.get_current_dir()))
+        self.current_search.set("Search {}".format(self.master.history.get_current_dir()))
         self.search_bar.pack(side=RIGHT)
 
     def set_dir(self, cwd):
         self.current_dir.set(cwd)
         self.current_search.set(
-            "Search {}".format(self.parent_win.HISTORY.get_current_dir())
+            "Search {}".format(self.master.history.get_current_dir())
         )
 
     #                                           EVENTS
     # ------------------------------------------------
     def on_search_click(self, event):
-        if "Search {}".format(self.parent_win.HISTORY.get_current_dir()) == self.search_bar.get():
+        if "Search {}".format(self.master.history.get_current_dir()) == self.search_bar.get():
             self.search_bar.delete(0, 'end')
 
     def on_enter(self, event):
         search_term = self.search_bar.get()
-        self.parent_win.file_explorer.main_tree.delete(
-            *self.parent_win.file_explorer.main_tree.get_children()
+        self.master.file_explorer.main_tree.delete(
+            *self.master.file_explorer.main_tree.get_children()
         )
         if hasattr(self, "search_thread") and self.search_thread is not None:
             if not self.search_thread.stopped():
                 self.search_thread.stop()
                 while not self.search_thread.get_progress()[0]:
                     time.sleep(0.1)
-        self.search_thread = SearchThread(self, self.parent_win.HISTORY.cwd, search_term)
+        self.search_thread = SearchThread(self, self.master.history.cwd, search_term)
         self.search_daemon = Thread(target=self.search_thread.find_results, args=())
         self.search_daemon.daemon = True
         self.search_daemon.start()
@@ -115,26 +115,26 @@ class Toolbar(Frame):
             return
         done, found = self.search_thread.get_progress()
         if not self.search_thread.stopped():
-            self.parent_win.file_explorer.load_search_results(found)
+            self.master.file_explorer.load_search_results(found)
         if not done:
             self.timer = Timer(1, self.update_search).start()
 
     def on_changed_dir(self, event):
         cwd = self.current_dir.get()
-        self.parent_win.on_changed_dir(cwd)
+        self.master.on_changed_dir(cwd)
 
     def back(self):
-        self.parent_win.change_dir(self.parent_win.HISTORY.back())
+        self.master.set_directory(self.master.history.back())
 
     def forward(self):
-        self.parent_win.change_dir(self.parent_win.HISTORY.forward())
+        self.master.set_directory(self.master.history.forward())
 
     def up_level(self):
-        cur_path = self.parent_win.HISTORY.cwd.split(os.path.sep)
+        cur_path = self.master.history.cwd.split(os.path.sep)
         if len(cur_path) > 1:
             up_one = os.path.sep.join(cur_path[:-1])
-            self.parent_win.HISTORY.new_dir(up_one)
-            self.parent_win.change_dir(up_one)
+            self.master.history.new_dir(up_one)
+            self.master.set_directory(up_one)
 
 
 class SearchThread(Thread):

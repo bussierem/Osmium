@@ -1,0 +1,84 @@
+Notes about how to structure the app, in a soon-to-come refactor:
+
++------+
+| "WM" |
+|------+-----------------------------------------------------------+
+| +------+                         +------+                        |
+| | "FE" |                         | "FE" |                        |
+| +------+----------------------+  +------+----------------------+ |
+| |            "MB"             |  |            "MB"             | |
+| |-----------------------------|  |-----------------------------| |
+| |            Tabs             |  |            Tabs             | |
+| |-----------------------------|  |-----------------------------| |
+| |            "TB"             |  |            "TB"             | |
+| |------+----------------------|  |------+----------------------| |
+| |      |                      |  |      |                      | |
+| | "SB" |        "LV"          |  | "SB" |        "LV"          | |
+| |      |                      |  |      |                      | |
+| |      |                      |  |      |                      | |
+| +-----------------------------+  +-----------------------------+ |
++------------------------------------------------------------------+
+
+Key:
+    WM = Window Manager
+    FE = File Explorer
+    LV = List View
+    SB = Sidebar
+    TB = Toolbar
+    MB = Menu Bar
+
+"Window Manager"
+    not a GUI object
+    Responsibilities:
+        Open/Close FEs
+        Drag/drop between FEs
+        Updating FEs:
+            LV
+            Bookmarks
+        Clipboard?
+    OnCreate:
+        Open a single FE
+    OnDelete:
+        Make sure no threads/processes still running!
+            HOW?
+
+"File Explorer"
+    Each represents a single window
+    Responsibilities:
+        Open/Close Tabs
+        Drag/Drop between Tabs
+        Updating the LV of the current Tab
+    Widgets:
+        MB - Menu
+            File
+            Edit
+            Tags
+            Bookmarks
+            Help
+        Tabs - Notebook
+            FileView - Frame
+                LV - TreeView
+                SB - TreeView
+                TB - Frame
+                    Back - Button
+                    Forward - Button
+                    Up - Button
+                    Navbar - Entry
+                    Refresh - Button
+                    Search - Entry
+                        OnKeypress(<Enter>):
+                            Open new tab with search results
+                            Run thread to update view over time
+                            NOTE:  Update title when search finished/WIP??
+            OnCreate:
+                Create new tab
+                Load "~" path into LV of new tab
+            OnDelete:
+                Send "Delete Me" request to FE
+                    If last tab, FE should call OnDelete
+    OnCreate:
+        Create first tab
+        Load "~" path into LV
+        Load Bookmarks
+    OnDelete:
+        Send "Delete Me" request to WM

@@ -1,5 +1,4 @@
 from tkinter import Tk
-
 from gui.window_manager import WindowManager
 
 if __name__ == "__main__":

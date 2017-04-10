@@ -8,6 +8,10 @@ from gui.widgets.file_view import FileView
 from gui.widgets.bookmark_bar import BookmarkBar
 from handlers.compatibility import CompatibilityHandler
 
+# MEMORY LEAK CHECKING #
+from pympler.tracker import SummaryTracker, summary, muppy
+########################
+
 #TODO: Move these to a different location
 # Dimensions
 DEFAULT_WIDTH = 1024
@@ -52,12 +56,26 @@ class FileExplorer(Toplevel):
     def __init__(self, master, id):
         self.master = master
         self.id = id
+        # MEMORY LEAK CHECKING #
+        self.tracker = SummaryTracker()
+        self.summ = summary.summarize(muppy.get_objects())
+        ########################
         Toplevel.__init__(self, self.master, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT)
         self.configure_window()
         self.history = History()
         self.widgets = {}
         self.render_gui()
         self.bind('<Control-p>', self.create_progbar)
+        # MEMORY LEAK CHECKING #
+        self.bind('<Control-l>', self.print_diff)
+        ########################
+
+    # MEMORY LEAK CHECKING #
+    def print_diff(self, event):
+        new_summ = summary.summarize(muppy.get_objects())
+        self.tracker.print_diff(self.summ, new_summ)
+        self.summ = new_summ
+    ########################
 
     def create_progbar(self, event):
         self.master.create_progress_bar_child()

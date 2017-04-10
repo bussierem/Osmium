@@ -1,7 +1,47 @@
+"""
+File ops:
+    COPY/CUT
+        Need to know:
+            file/folder name
+            file or folder?
+            source directory
+        Need access to:
+            Clipboard
+    PASTE
+        Need to know:
+            Type of operation (Cut or Copy)
+            File/Folder in clipboard
+            file or folder?
+            source directory
+            target directory
+        Need access to:
+            Clipboard
+            source/target directories
+    MOVE
+        Need to know:
+            file or folder?
+            source directory
+            target directory
+        Need access to:
+            source/target directories
+            
+    OnPaste:
+        check for file/folder in clipboard
+        last_op == COPY:
+            source is file:
+                command = {windows: "xcopy <src> <dst> /X/K/O/H/E"}
+            source is directory:
+                command = shutil.copytree
+        last_op == CUT:
+            command = shutil.move
+"""
+
+
 import shutil
 from enum import Enum
 from multiprocessing import Pool
 from tkinter import messagebox
+from tkinter import *
 
 from send2trash import *
 
@@ -58,6 +98,9 @@ class PasteOperation(FileOperation):
     def __init__(self, func, source, dest, callback):
         self.type = OpType.paste
         super().__init__(func, source, dest, [source, dest], callback)
+
+    def build_prog_window(self):
+        self.window = Toplevel()
 
 
 # This is for both "Cut-Paste" AND "Rename"

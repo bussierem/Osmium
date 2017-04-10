@@ -57,6 +57,10 @@ class FileExplorer(Toplevel):
         self.history = History()
         self.widgets = {}
         self.render_gui()
+        self.bind('<Control-p>', self.create_progbar)
+
+    def create_progbar(self, event):
+        self.master.create_progress_bar_child()
 
     def close_window(self):
         # Kill processes for this window
@@ -77,7 +81,7 @@ class FileExplorer(Toplevel):
         self.iconbitmap(CompatibilityHandler.get_app_icon())
         # Window Bindings
         self.bind("<FocusIn>", lambda _: self.lift)
-        self.bind("<Control-n>", lambda _: self.master.create_child())
+        self.bind("<Control-n>", lambda _: self.master.create_file_explorer_child())
         self.bind('<Button-1>', self.destroy_right_menus)
         # Apply Config
         self.update()
